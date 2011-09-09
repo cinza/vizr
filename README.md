@@ -4,7 +4,9 @@ Helpers creates templates for vizualization projects
 
 ## install
 
-    $ git clone [git repo] cd vizr rake install
+    $ git clone [git repo]
+    $ cd vizr
+    $ rake install
 
 ## usage
 
