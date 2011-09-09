@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby -w
+
+VIZER_ROOT =  File.expand_path("..", File.dirname(__FILE__))
+WORKING_DIR = Dir.pwd
+
+require 'rubygems'
+require 'optparse'
+require 'fileutils'
+require 'rake'
+
+include FileUtils
+
+load File.join(VIZER_ROOT, 'tasks/build.rb')
+
+EMPTY_PROJECT_PATH = "./project"
+DOT_FILE = ".vizer"
+
+DEV_PATH = "./dev"
+BUILD_PATH = "./build"
+TMP_PATH = "./tmpbuild"
+
+def create(args)
+  if args[0]
+    src = File.join(File.expand_path(EMPTY_PROJECT_PATH, VIZER_ROOT), ".")
+    dest = File.expand_path(args[0], WORKING_DIR)
+    cp_r(src, dest, {})
+    touch(File.join(dest, DOT_FILE))
+  end
+end
+
+def build(args)
+  if args[0]
+    target = File.expand_path(args[0], WORKING_DIR)
+    if File.exists?(File.join(target, DOT_FILE))
+      Rake::Task["build"].invoke target
+    end
+  end
+end
+
+command = ARGV[0].to_sym rescue nil
+args = ARGV[1..-1]
+
+case command
+  when :help
+
+  when :new, :create
+    create(args)
+
+  when :build
+    build(args)
+
+  when :check
+
+  when :update
+
+  when :clean
+
+  when :install
+
+  when :dist
+
+end
