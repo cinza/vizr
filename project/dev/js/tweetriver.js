@@ -332,7 +332,7 @@
   }
   
   function extend(to_obj, from_obj) {
-    for(var prop in from_obj) {
+    for(prop in from_obj) {
       if(typeof(to_obj[prop]) === 'undefined') {
         to_obj[prop] = from_obj[prop];
       }
@@ -345,11 +345,19 @@
     return Object.prototype.toString.call(obj) === '[object Array]';
   }
 
-  function fix_twitter_date(date) {
-    date = date.split(' ');
-    var year = date.pop();
-    date.splice(3, 0, year);
-    return date.join(' ');
+  var rx_twitter_date = /\+\d{4} \d{4}$/;
+  var rx_fb_date = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\+\d{4})$/; // iso8601
+  function fix_date(date) {
+    if(rx_twitter_date.test(date)) {
+      date = date.split(' ');
+      var year = date.pop();
+      date.splice(3, 0, year);
+      date = date.join(' ');
+    }
+    else if(rx_fb_date.test(date)) {
+      date = date.replace(rx_fb_date, '$1/$2/$3 $4:$5:$6 $7');
+    }
+    return date;
   };
   
   function parse_params() {
@@ -393,7 +401,8 @@
     to_qs: to_qs,
     extend: extend,
     is_array: is_array,
-    fix_twitter_date: fix_twitter_date,
+    fix_date: fix_date,
+    fix_twitter_date: fix_date, // alias
     parse_params: parse_params
   };
   
