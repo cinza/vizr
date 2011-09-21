@@ -87,7 +87,46 @@
     }
   };
   Stream._json_callbacks = {};
-  
+
+  function Account(user) {
+    this.user = user;
+  }
+  Account.prototype.meta_url = function() {
+    return 'http://tweetriver.com/'+ _enc(this.user) +'.json';
+  };
+  Account.prototype.meta = function() {
+    var opts, fn, error;
+    if(typeof(arguments[0]) === 'function') {
+      fn = arguments[0];
+      error = arguments[1];
+      opts = {};
+    }
+    else if(typeof(arguments[0]) === 'object') {
+      opts = arguments[0];
+      fn = arguments[1];
+      error = arguments[2];
+    }
+    else {
+      throw new Error('incorrect arguments');
+    }
+
+    var params = [];
+    if(opts.quick_stats) {
+      params.push(['quick_stats', '1']);
+    }
+    if(opts.streams) {
+      var streams = is_array(opts.streams) ? opts.streams : [opts.streams];
+      params.push(['streams', streams.join(',')]);
+    }
+
+    jsonp_factory(this.meta_url(), params, 'meta_', this, fn, error);
+
+    return this;
+  };
+  Account.prototype.toString = function() {
+    return this.user;
+  };
+
   function Poller(stream, opts) {
     this.stream = stream;
     this._callbacks = [];
@@ -332,6 +371,7 @@
   }
   
   function extend(to_obj, from_obj) {
+    var prop;
     for(prop in from_obj) {
       if(typeof(to_obj[prop]) === 'undefined') {
         to_obj[prop] = from_obj[prop];
@@ -393,6 +433,7 @@
   
   // public api
   massrel.Stream = Stream;
+  massrel.Account = Account;
   massrel.Poller = Poller;
   massrel.PollerQueue = PollerQueue;
   massrel.helpers = {

@@ -21,15 +21,12 @@ function register(Handlebars) {
     return twttr.txt.autoLinkUrlsCustom(text, options);
   });
 
-  
-
   Handlebars.registerHelper('prettyDate', function(date) {
     date = massrel.helpers.fix_twitter_date(date);
     return prettyDate(date);
  });
 
 }
-
 
 function prepare_context(status, opts) {
   if(status.retweeted_status) {
