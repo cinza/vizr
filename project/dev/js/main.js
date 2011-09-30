@@ -1,5 +1,3 @@
-massrel.handlebars.register(Handlebars);
-
 function app() {
   var elStream = $('#stream');
   var uiStream = new UIList(elStream, {
@@ -11,7 +9,7 @@ function app() {
   stream.poller({
     frequency: 15
   }).each(function(status) {
-    var context = massrel.handlebars.prepare_context(status);
+    var context = massrel.Context.create(status);
     if(context.known) {
       uiStream.prepend(context);
     }

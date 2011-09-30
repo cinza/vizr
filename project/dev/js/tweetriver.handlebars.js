@@ -28,38 +28,8 @@ function register(Handlebars) {
 
 }
 
-function prepare_context(status, opts) {
-  if(status.retweeted_status) {
-    var context = massrel.handlebars.prepare_context(status.retweeted_status, opts);
-    context.retweet = true;
-    context.retweeted_by_user = status.user;
-    return context;
-  }
-  
-  opts = massrel.helpers.extend(opts || {}, {
-    intents: true
-  });
-
-  var context = {
-    status: status,
-    intents: opts.intents,
-    source: {
-      facebook: false,
-      twitter: false
-    },
-    known: true
-  };
-
-  // determine status source
-  if(status.facebook_id) {
-    context.source.facebook = true;
-    context.known = (typeof(status.message) === 'string');
-  }
-  else {
-    context.source.twitter = true;
-  }
-
-  return context;
+function prepare_context(status, opts) { // alias for backwards compatability
+  return massrel.Context.create(status, opts);
 };
 
 // public api

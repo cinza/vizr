@@ -11,13 +11,12 @@ function UIList(selector, opts) {
     afterRemove: UIList.noop
   });
   
-
   massrel.helpers.extend(this, opts);
 }
 
 UIList.prototype.insert_ = function(where, item) {
-  var html = this.renderer(item) || '<div />';
-  var elem = $(html);
+  var html = this.renderer(item) || '';
+  var elem = $(document.createElement('div')).html(html).unwrap();
   
   while(this.existing.length >= this.limit) {
     this.remove(this.existing.shift());

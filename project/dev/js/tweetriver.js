@@ -36,7 +36,7 @@
       params.push(['replies', opts.replies]);
     }
     if(opts.geo_hint) {
-      params.push(['geo_hint', opts.geo_hint]);
+      params.push(['geo_hint', '1']);
     }
 
     jsonp_factory(this.stream_url(), params, '_', this, fn || this._enumerators, error); 
@@ -75,13 +75,13 @@
     
     return this;
   };
-  Stream.step_through = function(tweets, enumerators, context) {
-    var i = tweets.length - 1;
+  Stream.step_through = function(statuses, enumerators, context) {
+    var i = statuses.length - 1;
     if(i >= 0) {
       for(;i >= 0; i--) {
-        var tweet = tweets[i];
+        var status = statuses[i];
         for(var j = 0, len = enumerators.length; j < len; j++) {
-          enumerators[j].call(context, tweet);
+          enumerators[j].call(context, status);
         }
       }
     }
@@ -137,8 +137,8 @@
     opts = opts || {};
     this.limit = opts.limit || null;
     this.since_id = opts.since_id || null;
-    this.replies = opts.replies || null;
-    this.geo_hint = opts.geo_hint || null;
+    this.replies = !!opts.replies;
+    this.geo_hint = !!opts.geo_hint;
     this.frequency = (opts.frequency || 30) * 1000;
     this.catch_up = opts.catch_up !== undefined ? opts.catch_up : false;
     this.enabled = false;
@@ -182,21 +182,21 @@
         since_id: self.since_id,
         replies: self.replies,
         geo_hint: self.geo_hint
-      }, function(tweets) {
+      }, function(statuses) {
         self.alive = true;
         self.consecutive_errors = 0;
-        var catch_up = self.catch_up && tweets.length === self.limit;
+        var catch_up = self.catch_up && statuses.length === self.limit;
         
-        if(tweets.length > 0) {
-          self.since_id = tweets[0].id_str;
+        if(statuses.length > 0) {
+          self.since_id = statuses[0].entity_id;
           
           // invoke all batch handlers on this poller
           for(var i = 0, len = self._callbacks.length; i < len; i++) {
-            self._callbacks[i].call(self, tweets); // we might need to pass in a copy of tweets array
+            self._callbacks[i].call(self, statuses); // we might need to pass in a copy of statuses array
           }
           
           // invoke all enumerators on this poller
-          Stream.step_through(tweets, self._enumerators, self);
+          Stream.step_through(statuses, self._enumerators, self);
         }
         self._t = setTimeout(poll, catch_up ? 0 : self.frequency);
       }, function() {
@@ -224,41 +224,85 @@
   
   function PollerQueue(poller, opts) {
     this.poller = poller;
-    
-    opts = opts || {};
-    
+
+    opts = extend(opts || {}, {
+      history_size: 0,
+      history_timeout: poller.frequency / 1000
+    });
+
     var queue = [];
+    var history = [];
     var callback = null;
     var locked = false;
+    var lock_incr = 0;
+    var last_history_total = 0;
 
     this.total = 0;
     this.enqueued = 0;
-    
+    this.count = 0;
+    this.reused = 0;
+
     var self = this;
-    poller.batch(function(tweets) {
-      var len = tweets.length;
+    poller.batch(function(statuses) {
+      var len = statuses.length;
       var i = len - 1;
-      for(; i >= 0; i--) { // looping through from bottom to top to queue tweets from oldest to newest
-        queue.push(tweets[i]);
+      for(; i >= 0; i--) { // looping through from bottom to top to queue statuses from oldest to newest
+        queue.push(statuses[i]);
       }
       self.total += len;
       self.enqueued += len;
-      
+
       step();
     });
-    
+
+    function check_history() {
+      last_history_total = self.total;
+      setTimeout(function() {
+        if(self.poller.enabled && self.total === last_history_total && history.length > 0 && queue.length === 0) {
+          var index = Math.min(Math.floor(history.length * Math.random()), history.length - 1);
+          var status = history[index];
+          queue.push(status);
+
+          self.total += 1;
+          self.enqueued += 1;
+          self.reused += 1;
+
+          step();
+        };
+        check_history();
+      }, opts.history_timeout * 1000);
+    }
+    if(opts.history_size > 0) {
+      check_history();
+    }
+
     function step() {
       if(!locked && queue.length > 0 && typeof callback === 'function') {
+        var lock_local = ++lock_incr;
+
         self.enqueued -= 1;
-        var tweet = queue.shift();
-        locked = true
-        callback.call(self, tweet, function() {
-          locked = false;
-          setTimeout(step, 0);
+        self.count += 1;
+        var status = queue.shift();
+        locked = true;
+
+        callback.call(self, status, function() {
+          if(lock_local === lock_incr) {
+            locked = false;
+            setTimeout(step, 0);
+          }
         });
+
+        if(opts.history_size > 0 && !status.__recycled) {
+          if(opts.history_size === history.length) {
+            history.shift();
+          }
+          status.__recycled = true;
+          history.push(status);
+        }
+
       }
     }
-    
+
     this.next = function(fn) {
       if(!locked && typeof fn === 'function') {
         callback = fn;
@@ -266,8 +310,51 @@
       }
     }
   };
-  
-  
+
+  function Context(status) {
+    this.status = status;
+    this.source = {
+      facebook: false,
+      twitter: false,
+      message: false
+    };
+    this.known = false;
+    this.intents = false;
+  }
+
+  Context.create = function(status, opts) {
+    status = status || {}; // gracefully handle nulls
+    var context = new Context(status);
+
+    opts = massrel.helpers.extend(opts || {}, {
+      intents: true,
+      retweeted_by: true
+    });
+
+    // determine status source
+    if(status.id_str && status.text && status.entities) {
+      // source: twitter
+      context.source.twitter = context.known = true;
+    }
+    if(status.facebook_id) {
+      // source: facebook
+      context.source.facebook = true;
+      context.known = (typeof(status.message) === 'string');
+    }
+    else if(status.network === 'massrelevance') {
+      // source: internal message
+      context.source.message = context.known = true;
+    }
+
+    if(context.source.twitter && status.retweeted_status && opts.retweeted_by) {
+      context.retweet = true;
+      context.retweeted_by_user = status.user;
+      context.status =  status.retweeted_status;
+    }
+
+    return context;
+  };
+
   // UTILS
   
   var root = document.getElementsByTagName('head')[0] || document.body;
@@ -436,6 +523,7 @@
   massrel.Account = Account;
   massrel.Poller = Poller;
   massrel.PollerQueue = PollerQueue;
+  massrel.Context = Context;
   massrel.helpers = {
     load: load,
     jsonp_factory: jsonp_factory,
