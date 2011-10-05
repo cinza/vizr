@@ -17,4 +17,22 @@ Helpers creates templates for vizualization projects
 
 ## commands
 
-create, build
+create, build, dist
+
+### create
+
+**Usage:**
+
+    $ vizr create [-t | --type TYPE] <projectpath>
+
+Creates a new vizr project. Right now there is only one type, but we plan on having some other boilerplate projects.
+
+    $ vizr create project_name
+
+To use a different boilderplate:
+
+    $ vizr create -t basic project_name
+
+**Boilderplates:**
+
+* basic
