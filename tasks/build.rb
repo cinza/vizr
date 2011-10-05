@@ -1,10 +1,11 @@
-task :build, :target do |t, args|
+task :build, :target, :options do |t, args|
   [ :create_working_directory,
     :process_files,
     :create_build_directory,
     :move_to_build,
     :clean_up
   ].each do |task|
+    options = args[:options]
     Rake::Task[task].invoke(args[:target])
   end
 end
