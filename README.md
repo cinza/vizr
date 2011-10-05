@@ -57,7 +57,7 @@ Creates a zip file for emailing or uploading. It packages up a project `build` f
 
 **Usage:**
 
-    $ vizr dist <projectpath>
+    $ vizr dist [-n | --filename NAME] <projectpath>
 
 Example:
 
