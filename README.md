@@ -17,15 +17,17 @@ Helpers creates templates for vizualization projects
 
 ## commands
 
-create, build, dist
+`create`, `build`, `dist`, `help`
 
 ### create
+
+Creates a new vizr project. Right now there is only one type, but we plan on having some other boilerplate project types.
 
 **Usage:**
 
     $ vizr create [-t | --type TYPE] <projectpath>
 
-Creates a new vizr project. Right now there is only one type, but we plan on having some other boilerplate projects.
+Example:
 
     $ vizr create project_name
 
@@ -35,4 +37,32 @@ To use a different boilderplate:
 
 **Boilderplates:**
 
-* basic
+* `basic`
+
+### build
+
+Build a vizr project
+
+**Usage:**
+
+    $ vizr build <projectpath>
+
+Example:
+
+    $ vizr build .
+
+### dist
+
+Creates a zip file for emailing or uploading. It packages up a project `build` folder. By default it saves as `dist.zip` in the project root, you can change this with the `--filename` option.
+
+**Usage:**
+
+    $ vizr dist <projectpath>
+
+Example:
+
+    $ vizr dist .
+
+OR
+
+    $ vizr dist --filename project.zip .
