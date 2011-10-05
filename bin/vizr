@@ -19,7 +19,7 @@ include FileUtils
 load File.join(VIZER_ROOT, 'tasks/build.rb')
 load File.join(VIZER_ROOT, 'tasks/dist.rb')
 
-EMPTY_PROJECT_PATH = "./project"
+EMPTY_PROJECT_PATH = "./projects"
 DOT_FILE = ".vizer"
 
 DEV_PATH = "./dev"
@@ -30,9 +30,15 @@ TMP_PATH = "./tmpbuild"
 COMMANDS = {}
 
 COMMANDS[:create] = Proc.new do |args|
-  options = {}
+  options = {
+    :type => :basic
+  }
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr create [args] <projectpath>"
+
+    opts.on("-t", "--type TYPE", [:basic], "Predefined project type (basic only offered now)") do |type|
+      options[:type] = type.to_sym
+    end
 
     opts.on_tail("-h", "--help", "Show this message") do
       puts opts
@@ -42,7 +48,7 @@ COMMANDS[:create] = Proc.new do |args|
 
   parser.parse!(args)
   if args[0]
-    src = File.join(File.expand_path(EMPTY_PROJECT_PATH, VIZER_ROOT), ".")
+    src = File.join(File.expand_path(File.join(EMPTY_PROJECT_PATH, options[:type].to_s), VIZER_ROOT), ".")
     dest = File.expand_path(args[0], WORKING_DIR)
     cp_r(src, dest, {})
     touch(File.join(dest, DOT_FILE))
