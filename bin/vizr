@@ -120,12 +120,14 @@ COMMANDS[:help] = Proc.new do |args|
   puts "usage: vizr <command> [<args>]\n\n"
   puts "vizr commands are:"
   [
-    ["build", "build a current vizr project"],
+    ["build", "build a vizr project"],
     ["create", "create a new vizr project"],
+    ["dist", "zip up the contents of a project's build folder"],
     ["help", "this information"]
   ].each do |cmd|
     puts "   #{cmd[0]}#{" " * (spaces - cmd[0].length)}#{cmd[1]}"
   end
+  puts "\nSee 'vizr help <command>' for more information on a specific command"
 end
 
 def parse_args(command_name, args)
