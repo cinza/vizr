@@ -1,4 +1,6 @@
 function app() {
+  tweetriver.handlebars.register(Handlebars);
+
   var elStream = $('#stream');
   var uiStream = new UIList(elStream, {
     limit: 6,
