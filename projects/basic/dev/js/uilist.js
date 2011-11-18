@@ -1,3 +1,6 @@
+// requires jQuery
+(function() {
+
 function UIList(selector, opts) {
   this.elList = $(selector);
   this.existing = [];
@@ -56,3 +59,11 @@ UIList.defaultRenderer = function(item) {
   return item.toString();
 };
 UIList.noop = function() {};
+
+
+if(typeof(window.massrel) === 'undefined') {
+  window.massrel = {};
+}
+massrel.UIList = UIList;
+
+})();
