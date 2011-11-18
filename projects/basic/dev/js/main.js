@@ -2,7 +2,7 @@ function app() {
   massrel.handlebars.register(Handlebars);
 
   var elStream = $('#stream');
-  var uiStream = new UIList(elStream, {
+  var uiStream = new massrel.UIList(elStream, {
     limit: 6,
     renderer: templateFromScript('#tmpl-status-twitter')
   });
