@@ -28,8 +28,10 @@ task :process_files, :target do |t, args|
 
   sh "juicer merge -force -o #{File.join(tmp, "css", "main.build.css")} #{File.join(tmp, "css", "main.css")}"
   mv(File.join(tmp, "css", "main.build.css"), File.join(tmp, "css", "main.css"), :force => true)
-  sh "ruby #{File.join(VIZER_ROOT, "lib", "parse_hbs.rb")} #{File.join(tmp, "index.html.hbs")} #{File.join(target, "env.yaml")} > #{File.join(tmp, "index.html")}"
 
+  Dir[File.join(tmp, "*.hbs")].each do |hbs|
+    sh "ruby #{File.join(VIZER_ROOT, "lib", "parse_hbs.rb")} \"#{hbs}\" #{File.join(target, "env.yaml")} > #{File.join(tmp, File.basename(hbs, ".hbs"))}"
+  end
 end
 
 task :create_build_directory, :target do |t, args|
