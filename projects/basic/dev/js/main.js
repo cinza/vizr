@@ -1,3 +1,12 @@
+/** 
+ * @depends jquery.js
+ * @depends handlebars.js
+ * @depends prettydate.js
+ * @depends twitter-text.js
+ * @depends tweetriver.js
+ * @depends tweetriver.handlebars.js
+ * @depends uilist.js
+ */
 function app() {
   massrel.handlebars.register(Handlebars);
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 name="vizr"
-app_path=~/code/${name}
+app_path=~/Library/WebServer/Document/${name}
 
 echo "creating or updating app"
 git clone git@github.com:howardr/vizr.git ${app_path}

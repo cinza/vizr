@@ -26,8 +26,11 @@ task :process_files, :target do |t, args|
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
 
-  sh "juicer merge -force -o #{File.join(tmp, "css", "main.build.css")} #{File.join(tmp, "css", "main.css")}"
-  mv(File.join(tmp, "css", "main.build.css"), File.join(tmp, "css", "main.css"), :force => true)
+  sh "juicer merge -i #{File.join(tmp, "css", "main.build.css")} #{File.join(tmp, "css", "main.css")}"
+  mv(File.join(tmp, "css", "main.min.css"), File.join(tmp, "css", "main.css"), :force => true)
+  
+  sh "juicer merge -i #{File.join(tmp, "css", "main.build.js")} #{File.join(tmp, "js", "main.js")}"
+  mv(File.join(tmp, "js", "main.min.js"), File.join(tmp, "js", "main.js"), :force => true)
 
   Dir[File.join(tmp, "*.hbs")].each do |hbs|
     sh "ruby #{File.join(VIZER_ROOT, "lib", "parse_hbs.rb")} \"#{hbs}\" #{File.join(target, "env.yaml")} > #{File.join(tmp, File.basename(hbs, ".hbs"))}"

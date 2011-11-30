@@ -5,8 +5,8 @@ task :install => ["/usr/local/bin/vizr"] do
   puts "install juicer"
   sh "sudo gem install juicer"
 
-  puts "install juicer dependencies"
-  sh "juicer install"
+  #puts "install juicer dependencies"
+  #sh "juicer install"
 end
 
 file "/usr/local/bin/vizr" do
