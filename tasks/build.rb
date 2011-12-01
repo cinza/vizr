@@ -54,11 +54,22 @@ task :move_to_build, :target do |t, args|
   build = File.expand_path(BUILD_PATH, target)
 
   ["css", "js", "img"].each do |folder|
-    mkdir_p(File.join(build, folder))
-    cp_r(File.join(tmp, folder), build)
+    if File.exists?(File.join(tmp, folder))
+      mkdir_p(File.join(build, folder))
+      
+      if folder == "css"
+        cp(File.join(tmp, folder, "main.css"), File.join(build, folder))
+      elsif folder == "js"
+        cp(File.join(tmp, folder, "modernizr.js"), File.join(build, folder))
+        cp(File.join(tmp, folder, "jquery.js"), File.join(build, folder))
+        cp(File.join(tmp, folder, "main.js"), File.join(build, folder))
+      else
+        cp_r(File.join(tmp, folder), build)
+      end
+    end 
   end
+  
   cp(Dir[File.join(tmp, "*.html")], build)
-  cp(Dir[File.join(tmp, "*.js")], build)
 end
 
 task :clean_up, :target do |t, args|
