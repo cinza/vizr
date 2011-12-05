@@ -106,6 +106,28 @@ COMMANDS[:dist] = Proc.new do |args|
   end
 end
 
+COMMANDS[:pull] = Proc.new do |args|
+  pull = true
+  parser = OptionParser.new do |opts|
+    opts.banner = "Update vizr builder to new version\nusage: vizr pull [args]"
+
+    opts.on_tail("-h", "--help", "Show this message") do
+      pull = false
+      puts opts
+      exit
+    end
+  end
+
+  parser.parse!(args)
+  if pull
+    cd(VIZER_ROOT)
+    sh "git pull"
+  else
+    puts parser
+  end
+end
+
+
 COMMANDS[:help] = Proc.new do |args|
   # handles case when someone enters in "vizr help <command>"
   if args[0] && COMMANDS[args[0].to_sym]
@@ -123,7 +145,8 @@ COMMANDS[:help] = Proc.new do |args|
     ["build", "build a vizr project"],
     ["create", "create a new vizr project"],
     ["dist", "zip up the contents of a project's build folder"],
-    ["help", "this information"]
+    ["help", "this information"],
+    ["pull", "update vizr builder to newest version"]
   ].each do |cmd|
     puts "   #{cmd[0]}#{" " * (spaces - cmd[0].length)}#{cmd[1]}"
   end
