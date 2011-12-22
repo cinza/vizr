@@ -1,4 +1,4 @@
-# vizr
+# vizr 
 
 Helpers creates templates for vizualization projects
 
