@@ -53,7 +53,7 @@ task :move_to_build, :target do |t, args|
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
 
-  ["css", "js", "img"].each do |folder|
+  ["css", "js", "img", "fonts"].each do |folder|
     if File.exists?(File.join(tmp, folder))
       mkdir_p(File.join(build, folder))
       

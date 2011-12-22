@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'handlebars'
 require 'yaml'
+require 'uri'
 
 DEBUG = true
 context = {}
@@ -32,6 +33,10 @@ end
 
 Handlebars.register_helper(:render) do |path, block|
   render(path)
+end
+
+Handlebars.register_helper(:enc) do |string, block|
+  content = string.gsub(" ", "-").gsub("!", "").downcase!
 end
 
 # actually do stuff
