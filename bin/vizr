@@ -58,9 +58,15 @@ COMMANDS[:create] = Proc.new do |args|
 end
 
 COMMANDS[:build] = Proc.new do |args|
-  options = {}
+  options = {
+    :minify => true
+  }
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr build [args] <projectpath>"
+
+    opts.on("--no-minify", "Prevent asset minification if available") do
+      options[:minify] = false
+    end
 
     opts.on_tail("-h", "--help", "Show this message") do
       puts opts

@@ -5,8 +5,9 @@ task :build, :target, :options do |t, args|
     :move_to_build,
     :clean_up
   ].each do |task|
+    target = args[:target]
     options = args[:options]
-    Rake::Task[task].invoke(args[:target])
+    Rake::Task[task].invoke(target, options)
   end
 end
 
@@ -20,8 +21,9 @@ task :create_working_directory, :target do |t, args|
   cp_r(dev, tmp)
 end
 
-task :process_files, :target do |t, args|
+task :process_files, :target, :options do |t, args|
   target = args[:target]
+  options = args[:options]
   dev = File.expand_path(DEV_PATH, target)
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
