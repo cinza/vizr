@@ -1,3 +1,4 @@
+/*jslint browser: true, sloppy: true, white: true, nomen: false, plusplus: true, maxerr: 50, indent: 4 */
 // lib/handlebars/base.js
 var Handlebars = {};
 
