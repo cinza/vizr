@@ -202,14 +202,20 @@ def check_lock(target)
   ok
 end
 
+#TODO
+def check_for_updates
+  #git log -n 1 origin
+end
+
 def parse_args(command_name, args)
+  check_for_updates
+
   command_name = command_name || :help
   args = args || []
   command = COMMANDS[command_name] || COMMANDS[:help]
 
   command.call(args)
 end
-
 
 cmd = ARGV[0].to_sym rescue nil
 parse_args(cmd, ARGV[1..-1])
