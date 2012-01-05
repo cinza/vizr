@@ -21,6 +21,7 @@ load File.join(VIZER_ROOT, 'tasks/dist.rb')
 
 EMPTY_PROJECT_PATH = "./projects"
 DOT_FILE = ".vizer"
+LOCK_FILE = ".vizer-lock"
 
 DEV_PATH = "./dev"
 BUILD_PATH = "./build"
@@ -52,15 +53,22 @@ COMMANDS[:create] = Proc.new do |args|
     dest = File.expand_path(args[0], WORKING_DIR)
     cp_r(src, dest, {})
     touch(File.join(dest, DOT_FILE))
+    sh "echo \"#{LOCK_FILE}\" >> \"#{File.join(dest, ".gitignore")}\""
   else
     puts parser
   end
 end
 
 COMMANDS[:build] = Proc.new do |args|
-  options = {}
+  options = {
+    :minify => true
+  }
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr build [args] <projectpath>"
+
+    opts.on("--no-minify", "Prevent asset minification if available")do
+      options[:minify] = false
+    end
 
     opts.on_tail("-h", "--help", "Show this message") do
       puts opts
@@ -71,6 +79,8 @@ COMMANDS[:build] = Proc.new do |args|
   parser.parse!(args)
   if args[0]
     target = File.expand_path(args[0], WORKING_DIR)
+    check_lock(target)
+
     if File.exists?(File.join(target, DOT_FILE))
       Rake::Task["build"].invoke(target, options)
     end
@@ -87,7 +97,7 @@ COMMANDS[:dist] = Proc.new do |args|
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr dist [args] <projectpath>"
     options[:name] = "dist.zip"
-    opts.on("-n", "--filename [NAME]", "File name of zip") do |filename|
+    opts.on("-n", "--filename [NAME]", "File name of zip (default: dist.zip)") do |filename|
       options[:filename] = filename
     end
 
@@ -100,6 +110,7 @@ COMMANDS[:dist] = Proc.new do |args|
   parser.parse!(args)
   if args[0]
     target = File.expand_path(args[0], WORKING_DIR)
+    check_lock(target)
     Rake::Task["package"].invoke(target, options)
   else
     puts parser
@@ -153,14 +164,58 @@ COMMANDS[:help] = Proc.new do |args|
   puts "\nSee 'vizr help <command>' for more information on a specific command"
 end
 
+def check_lock(target)
+  ok = true
+  lock_path = File.join(target, LOCK_FILE)
+  begin
+    content = File.read(lock_path)
+    ok = (content.strip == target.strip)
+  rescue
+    # create lock file
+    sh "echo \"#{target}\" > \"#{lock_path}\""
+
+    # make sure lock file doesn't get checked in
+    sh "echo \"#{LOCK_FILE}\" >> \"#{File.join(target, ".gitignore")}\""
+  end
+
+  if not ok
+    puts "    Vizr problem"
+    puts "================="
+    puts "    It appears this directory was copied from another location."
+    puts "    It is recommended that you create a new project from scratch"
+    puts "    (see: `vizr help create`) in order ensure to you have up-to-date"
+    puts "    project assets"
+    puts ""
+    puts "    If you want to prevent this check, please delete '#{LOCK_FILE}'"
+    puts "    in the project root"
+    puts ""
+    puts "================="
+    puts "    Original path:"
+    puts "    #{content || ""}"
+    puts ""
+    puts "    Target path:"
+    puts "    #{target}"
+    puts ""
+    exit
+  end
+
+  ok
+end
+
+#TODO
+def check_for_updates
+  #git log -n 1 origin
+end
+
 def parse_args(command_name, args)
+  check_for_updates
+
   command_name = command_name || :help
   args = args || []
   command = COMMANDS[command_name] || COMMANDS[:help]
 
   command.call(args)
 end
-
 
 cmd = ARGV[0].to_sym rescue nil
 parse_args(cmd, ARGV[1..-1])
