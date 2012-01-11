@@ -66,3 +66,7 @@ Example:
 OR
 
     $ vizr dist --filename project.zip .
+
+# TODO
+
+* opengraph tags
