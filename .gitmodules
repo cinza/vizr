@@ -1,3 +1,0 @@
-[submodule "modules/stream-js"]
-	path = modules/stream-js
-	url = git://github.com/MassRelevance/stream-js.git
