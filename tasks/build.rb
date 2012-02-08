@@ -58,16 +58,7 @@ task :move_to_build, :target do |t, args|
   ["css", "js", "img", "fonts"].each do |folder|
     if File.exists?(File.join(tmp, folder))
       mkdir_p(File.join(build, folder))
-      
-      if folder == "css"
-        cp(File.join(tmp, folder, "main.css"), File.join(build, folder))
-      elsif folder == "js"
-        cp(File.join(tmp, folder, "modernizr.js"), File.join(build, folder))
-        cp(File.join(tmp, folder, "jquery.js"), File.join(build, folder))
-        cp(File.join(tmp, folder, "main.js"), File.join(build, folder))
-      else
-        cp_r(File.join(tmp, folder), build)
-      end
+      cp_r(File.join(tmp, folder), build)
     end 
   end
   
