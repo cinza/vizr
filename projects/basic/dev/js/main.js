@@ -3,8 +3,8 @@
  * @depends handlebars.js
  * @depends prettydate.js
  * @depends twitter-text.js
- * @depends tweetriver.js
- * @depends tweetriver.handlebars.js
+ * @depends massrel.js
+ * @depends handlebars_helpers.js
  * @depends uilist.js
  */
 
