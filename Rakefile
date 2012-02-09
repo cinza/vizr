@@ -1,12 +1,13 @@
 task :install => ["/usr/local/bin/vizr"] do
-  puts "install handlebars gem"
-  sh "sudo gem install hbs"
+  puts "install bundler"
+  sh "sudo gem install bundler"
 
-  puts "install juicer"
-  sh "sudo gem install juicer"
+  puts "add gems with bundler"
+  sh "bundle install"
 
-  #puts "install juicer dependencies"
-  #sh "juicer install"
+  puts "install juicer dependencies"
+  sh "juicer install yui_compressor"
+  sh "juicer install jslint"
 end
 
 file "/usr/local/bin/vizr" do

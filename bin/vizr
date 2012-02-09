@@ -10,6 +10,7 @@ VIZER_ROOT =  File.expand_path("..", File.dirname(me))
 WORKING_DIR = Dir.pwd
 
 require 'rubygems'
+require 'bundler/setup'
 require 'fileutils'
 require 'rake'
 require 'optparse'
@@ -125,6 +126,7 @@ COMMANDS[:pull] = Proc.new do |args|
   if pull
     cd(VIZER_ROOT)
     sh "git pull"
+    sh "bundle install"
   else
     puts parser
   end
@@ -240,8 +242,9 @@ def check_lock(target)
   found = false
   lock_path = File.join(target, LOCK_FILE)
   lock_paths_to_check = [LOCK_FILE, ".vizer-lock"]
+  content = nil
   begin
-    found = lock_paths_to_check.count do |path|
+    lock_paths_to_check.count do |path|
       path = File.join(target, path)
       found = File.exists?(path)
       if found
@@ -252,6 +255,9 @@ def check_lock(target)
       break if found && ok
     end
 
+    unless found
+      raise "Couldn't find file"
+    end
   rescue
     # create lock file
     sh "echo \"#{target}\" > \"#{lock_path}\""
