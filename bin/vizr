@@ -11,12 +11,12 @@ WORKING_DIR = Dir.pwd
 
 require 'rubygems'
 require 'bundler/setup'
-require 'fileutils'
 require 'rake'
 require 'optparse'
 require 'yaml'
 
-include FileUtils
+#disable fileutils verbosity
+verbose(false)
 
 load File.join(VIZER_ROOT, 'tasks/build.rb')
 load File.join(VIZER_ROOT, 'tasks/dist.rb')
