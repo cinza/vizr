@@ -18,6 +18,7 @@ include FileUtils
 
 load File.join(VIZER_ROOT, 'tasks/build.rb')
 load File.join(VIZER_ROOT, 'tasks/dist.rb')
+load File.join(VIZER_ROOT, 'tasks/upload.rb')
 
 EMPTY_PROJECT_PATH = "./projects"
 DOT_FILE = ".vizer"
@@ -138,6 +139,37 @@ COMMANDS[:pull] = Proc.new do |args|
   end
 end
 
+COMMANDS[:upload] = Proc.new do |args|
+  options = {
+    :filename => "dist.zip",
+    :version_files => true
+  }
+
+  parser = OptionParser.new do |opts|
+    opts.banner = "usage: vizr upload [args] <projectpath>"
+    opts.on("-n", "--filename [NAME]", "File name of zip (default: dist.zip)") do |filename|
+      options[:filename] = filename
+    end
+
+    opts.on("--no-version", "Prevent server from versioning files (versioning allows web browsers to cache content)") do
+      options[:version_files] = false
+    end
+
+    opts.on_tail("-h", "--help", "Show this message") do
+      puts opts
+      exit
+    end
+  end
+
+  parser.parse!(args)
+  if args[0]
+    target = File.expand_path(args[0], WORKING_DIR)
+    check_lock(target)
+    Rake::Task["upload"].invoke(target, options)
+  else
+    puts parser
+  end
+end
 
 COMMANDS[:help] = Proc.new do |args|
   # handles case when someone enters in "vizr help <command>"
