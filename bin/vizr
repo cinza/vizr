@@ -154,6 +154,7 @@ COMMANDS[:upload] = Proc.new do |args|
 
   parser.parse!(args)
   setup_env(args) do |target, env|
+    options = env.update(options)
     Rake::Task["upload"].invoke(target, options)
   end
 end
@@ -196,7 +197,7 @@ def setup_env(args, &block)
     env.merge!(YAML.load_file(dot_file)) if dot_file
 
     if dot_file && check_lock(target)
-      block.call(target, {})
+      block.call(target, env)
     end
   else
     puts parser

@@ -4,8 +4,10 @@ task :upload, :target, :options do |t, args|
   target = args[:target]
   options = args[:options]
 
-  api_key = ""
-  project_url = ""
+  puts options.inspect
+
+  api_key = options['api_key']
+  endpoint = options['upload']['endpoint']
   dist_path = File.join(target, options[:filename])
 
   params = {
@@ -14,7 +16,8 @@ task :upload, :target, :options do |t, args|
   }
   params[:version_files] = "1" if options[:version_files]
 
-  response = RestClient.put(project_url, params)
-
-  puts response.to_s
+  if api_key && endpoint
+    response = RestClient.put(endpoint, params)
+    puts response.to_s
+  end
 end
