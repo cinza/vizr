@@ -13,6 +13,7 @@ require 'rubygems'
 require 'fileutils'
 require 'rake'
 require 'optparse'
+require 'yaml'
 
 include FileUtils
 
@@ -23,6 +24,7 @@ load File.join(VIZER_ROOT, 'tasks/upload.rb')
 EMPTY_PROJECT_PATH = "./projects"
 DOT_FILE = ".vizr"
 LOCK_FILE = ".vizr-lock"
+USER_FILE = "~/.vizrrc"
 
 DEV_PATH = "./dev"
 BUILD_PATH = "./build"
@@ -140,8 +142,8 @@ COMMANDS[:upload] = Proc.new do |args|
       options[:filename] = filename
     end
 
-    opts.on("--no-version", "Prevent server from versioning files (versioning allows web browsers to cache content)") do
-      options[:version_files] = false
+    opts.on("--[no-]version", "Version files (versioning allows web browsers to cache content)") do |version|
+      options[:version_files] = version
     end
 
     opts.on_tail("-h", "--help", "Show this message") do
@@ -186,7 +188,14 @@ def setup_env(args, &block)
   if args[0]
     target = File.expand_path(args[0], WORKING_DIR)
 
-    if check_for_dot_file(target) && check_lock(target)
+    user_file = check_for_user_file()
+    dot_file = check_for_dot_file(target)
+
+    env = {}
+    env.merge!(YAML.load_file(user_file)) if user_file
+    env.merge!(YAML.load_file(dot_file)) if dot_file
+
+    if dot_file && check_lock(target)
       block.call(target, {})
     end
   else
@@ -212,6 +221,15 @@ def check_for_dot_file(target)
     puts "    Your target: #{target}"
     puts ""
 
+    nil
+  end
+end
+
+def check_for_user_file
+  user_file = File.expand_path(USER_FILE)
+  if File.exists?(user_file)
+    user_file
+  else
     nil
   end
 end
