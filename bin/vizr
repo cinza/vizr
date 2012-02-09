@@ -21,8 +21,8 @@ load File.join(VIZER_ROOT, 'tasks/dist.rb')
 load File.join(VIZER_ROOT, 'tasks/upload.rb')
 
 EMPTY_PROJECT_PATH = "./projects"
-DOT_FILE = ".vizer"
-LOCK_FILE = ".vizer-lock"
+DOT_FILE = ".vizr"
+LOCK_FILE = ".vizr-lock"
 
 DEV_PATH = "./dev"
 BUILD_PATH = "./build"
@@ -78,15 +78,8 @@ COMMANDS[:build] = Proc.new do |args|
   end
 
   parser.parse!(args)
-  if args[0]
-    target = File.expand_path(args[0], WORKING_DIR)
-    check_lock(target)
-
-    if File.exists?(File.join(target, DOT_FILE))
-      Rake::Task["build"].invoke(target, options)
-    end
-  else
-    puts parser
+  setup_env(args) do |target, env|
+    Rake::Task["build"].invoke(target, options)
   end
 end
 
@@ -109,12 +102,8 @@ COMMANDS[:dist] = Proc.new do |args|
   end
 
   parser.parse!(args)
-  if args[0]
-    target = File.expand_path(args[0], WORKING_DIR)
-    check_lock(target)
+  setup_env(args) do |target, env|
     Rake::Task["package"].invoke(target, options)
-  else
-    puts parser
   end
 end
 
@@ -162,12 +151,8 @@ COMMANDS[:upload] = Proc.new do |args|
   end
 
   parser.parse!(args)
-  if args[0]
-    target = File.expand_path(args[0], WORKING_DIR)
-    check_lock(target)
+  setup_env(args) do |target, env|
     Rake::Task["upload"].invoke(target, options)
-  else
-    puts parser
   end
 end
 
@@ -196,12 +181,58 @@ COMMANDS[:help] = Proc.new do |args|
   puts "\nSee 'vizr help <command>' for more information on a specific command"
 end
 
+
+def setup_env(args, &block)
+  if args[0]
+    target = File.expand_path(args[0], WORKING_DIR)
+
+    if check_for_dot_file(target) && check_lock(target)
+      block.call(target, {})
+    end
+  else
+    puts parser
+  end
+end
+
+def check_for_dot_file(target)
+  dot_file = [DOT_FILE, ".vizer"].find do |file|
+    File.exists?(File.join(target, file))
+  end
+
+  if dot_file
+    File.join(target, dot_file)
+  else
+    puts "    Vizr problem"
+    puts "================="
+    puts "    Not a valid vizr path"
+    puts "    All commands must be followed by a relative path to the root"
+    puts "    of a vizr project"
+    puts ""
+    puts "================="
+    puts "    Your target: #{target}"
+    puts ""
+
+    nil
+  end
+end
+
 def check_lock(target)
   ok = true
+  found = false
   lock_path = File.join(target, LOCK_FILE)
+  lock_paths_to_check = [LOCK_FILE, ".vizer-lock"]
   begin
-    content = File.read(lock_path)
-    ok = (content.strip == target.strip)
+    found = lock_paths_to_check.count do |path|
+      path = File.join(target, path)
+      found = File.exists?(path)
+      if found
+        content = File.read(path)
+        ok = (content.strip == target.strip)
+      end
+
+      break if found && ok
+    end
+
   rescue
     # create lock file
     sh "echo \"#{target}\" > \"#{lock_path}\""
