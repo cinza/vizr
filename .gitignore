@@ -1,3 +1,4 @@
 .DS_Store
 *.swp
 install.log
+.last_update_check

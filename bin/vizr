@@ -304,11 +304,33 @@ def check_lock(target)
 end
 
 def check_for_updates
-  #if out_of_date?
-  #  message(:out_of_date)
-  #end
+  path = File.join(VIZR_ROOT, ".last_update_check")
 
-  true
+  make_check = true
+  if File.exists?(path)
+    begin
+      now = Time.now.to_i
+      last_check = File.read(path).strip.to_i
+      elasped_time = now - last_check
+
+      # check every 30min
+      make_check = elasped_time > 30 * 60 # 30m * 60s = 30 minutes in seconds
+    rescue
+    end
+  end
+
+  if make_check
+    puts "checking for updates..."
+    if out_of_date?
+      message(:out_of_date)
+    else
+      puts "already up to date"
+      File.open(path, "w") do |file|
+        file.write(Time.now.to_i.to_s)
+      end
+    end
+    
+  end
 end
 
 def out_of_date?
