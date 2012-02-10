@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby -W0
-
+ 
 me = if File.symlink?(__FILE__)
   File.readlink(__FILE__)
 else
