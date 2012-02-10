@@ -315,7 +315,7 @@ def out_of_date?
   repo = Grit::Repo.new(VIZR_ROOT)
 
   branch = repo.head.name
-  repo.remote_fetch
+  repo.remote_fetch('origin')
   local_rev = repo.git.rev_list({ :max_count => 1 }, branch)
   remote_rev = repo.git.rev_list({ :max_count => 1 }, "origin/#{branch}")
 
