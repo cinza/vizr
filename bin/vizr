@@ -213,7 +213,22 @@ def setup_env(command, args, options = {}, &block)
 
     env = {}
     env.merge!(YAML.load_file(user_file)) if user_file
-    env.merge!(YAML.load_file(dot_file)) if dot_file
+    if user_file
+      prefs = YAML.load_file(user_file)
+
+      case prefs
+        when Hash
+          env.merge!(prefs)
+      end
+    end
+    if dot_file
+      prefs = YAML.load_file(dot_file)
+
+      case prefs
+        when Hash
+          env.merge!(prefs)
+      end
+    end
 
     if (!options[:check_if_project] || dot_file) && check_lock(target)
       block.call(target, env)
