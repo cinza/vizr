@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby -W0
-
+ 
 me = if File.symlink?(__FILE__)
   File.readlink(__FILE__)
 else
@@ -11,6 +11,7 @@ WORKING_DIR = Dir.pwd
 
 require 'rubygems'
 require 'bundler/setup'
+require 'grit'
 require 'rake'
 require 'optparse'
 require 'yaml'
@@ -52,14 +53,11 @@ COMMANDS[:create] = Proc.new do |args|
   end
 
   parser.parse!(args)
-  if args[0]
+  setup_env(:create, args, :check_if_project => false) do |target, env|
     src = File.join(File.expand_path(File.join(EMPTY_PROJECT_PATH, options[:type].to_s), VIZR_ROOT), ".")
-    dest = File.expand_path(args[0], WORKING_DIR)
-    cp_r(src, dest, {})
-    touch(File.join(dest, DOT_FILE))
-    sh "echo \"#{LOCK_FILE}\" >> \"#{File.join(dest, ".gitignore")}\""
-  else
-    puts parser
+    cp_r(src, target, {})
+    touch(File.join(target, DOT_FILE))
+    sh "echo \"#{LOCK_FILE}\" >> \"#{File.join(target, ".gitignore")}\""
   end
 end
 
@@ -81,7 +79,7 @@ COMMANDS[:build] = Proc.new do |args|
   end
 
   parser.parse!(args)
-  setup_env(args) do |target, env|
+  setup_env(:build, args) do |target, env|
     Rake::Task["build"].invoke(target, options)
   end
 end
@@ -105,7 +103,7 @@ COMMANDS[:dist] = Proc.new do |args|
   end
 
   parser.parse!(args)
-  setup_env(args) do |target, env|
+  setup_env(:dist, args) do |target, env|
     Rake::Task["package"].invoke(target, options)
   end
 end
@@ -124,8 +122,16 @@ COMMANDS[:pull] = Proc.new do |args|
 
   parser.parse!(args)
   if pull
+
     cd(VIZR_ROOT)
-    sh "git pull"
+    if out_of_date?
+      puts "git out of date...updating"
+      sh "git pull"
+    else 
+      puts "git up to date"
+    end
+
+    puts "checking dependencies"
     sh "bundle install"
   else
     puts parser
@@ -155,16 +161,20 @@ COMMANDS[:upload] = Proc.new do |args|
   end
 
   parser.parse!(args)
-  setup_env(args) do |target, env|
+  setup_env(:upload, args) do |target, env|
     options = env.update(options)
     Rake::Task["upload"].invoke(target, options)
   end
 end
 
 COMMANDS[:help] = Proc.new do |args|
+  help(args[0])
+end
+
+def help(command = nil)
   # handles case when someone enters in "vizr help <command>"
-  if args[0] && COMMANDS[args[0].to_sym]
-    parse_args(args[0].to_sym, ["-h"])
+  if command && COMMANDS[command.to_sym]
+    parse_args(command.to_sym, ["-h"])
     exit
   end
 
@@ -179,20 +189,27 @@ COMMANDS[:help] = Proc.new do |args|
     ["create", "create a new vizr project"],
     ["dist", "zip up the contents of a project's build folder"],
     ["help", "this information"],
-    ["pull", "update vizr builder to newest version"]
+    ["pull", "update vizr builder to newest version"],
+    ["upload", "upload a project zip to a server"]
   ].each do |cmd|
     puts "   #{cmd[0]}#{" " * (spaces - cmd[0].length)}#{cmd[1]}"
   end
   puts "\nSee 'vizr help <command>' for more information on a specific command"
 end
 
+def setup_env(command, args, options = {}, &block)
+  options = {
+    :check_if_project => true,
+    :check_for_updates => true
+  }.update(options)
 
-def setup_env(args, &block)
+  check_for_updates() if options[:check_for_updates]
+
   if args[0]
     target = File.expand_path(args[0], WORKING_DIR)
 
     user_file = check_for_user_file()
-    dot_file = check_for_dot_file(target)
+    dot_file = check_for_dot_file(target) if options[:check_if_project]
 
     env = {}
     env.merge!(YAML.load_file(user_file)) if user_file
@@ -213,11 +230,11 @@ def setup_env(args, &block)
       end
     end
 
-    if dot_file && check_lock(target)
+    if (!options[:check_if_project] || dot_file) && check_lock(target)
       block.call(target, env)
     end
   else
-    puts parser
+    help(command)
   end
 end
 
@@ -286,12 +303,27 @@ def check_lock(target)
   ok
 end
 
-#TODO
 def check_for_updates
-  #git log -n 1 origin
+  #if out_of_date?
+  #  message(:out_of_date)
+  #end
+
+  true
 end
 
-def message(name, context)
+def out_of_date?
+  repo = Grit::Repo.new(VIZR_ROOT)
+
+  branch = repo.head.name
+  repo.remote_fetch('origin')
+  local_rev = repo.git.rev_list({ :max_count => 1 }, branch)
+  remote_rev = repo.git.rev_list({ :max_count => 1 }, "origin/#{branch}")
+
+  # making some assumptions here
+  local_rev != remote_rev
+end
+
+def message(name, context = {})
   content = ""
   path = File.expand_path("messages/#{name.to_s}.hbs", VIZR_ROOT)
   File.open(path, "r") do |file|
@@ -305,8 +337,6 @@ def message(name, context)
 end
 
 def parse_args(command_name, args)
-  check_for_updates
-
   command_name = command_name || :help
   args = args || []
   command = COMMANDS[command_name] || COMMANDS[:help]
