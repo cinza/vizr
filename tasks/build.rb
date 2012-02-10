@@ -25,13 +25,19 @@ task :process_files, :target, :options do |t, args|
   target = args[:target]
   options = args[:options]
   minify = options[:minify]
+  jslint = options[:jslint]
+  jopts = ''
   
   dev = File.expand_path(DEV_PATH, target)
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
   
   if !minify
-    jopts = '-m none'
+    jopts << ' -m none'
+  end
+  
+  if !jslint
+    jopts << ' -s'
   end
 
   sh "juicer merge -i #{jopts} #{File.join(tmp, "css", "main.build.css")} #{File.join(tmp, "css", "main.css")}"
