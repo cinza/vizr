@@ -17,42 +17,29 @@ task :upload, :target, :options do |t, args|
   params[:version_files] = "1" if options[:version_files]
 
   if api_key && endpoint
-    response = RestClient.put(endpoint, params)
-    project = JSON.parse(response.to_s)
+    $stdout.sync = true
+    print "uploading..."
 
-    puts "      Upload #{project['success'] ? "succesful" : "error"}"
-    puts "==============================="
+    response = nil
 
-    if project['success'] && project['changes'].size > 0
-      puts "      Uploaded:"
-      if project['changes'][0]['uploaded'].empty?
-        puts "      none"
-      else
-        puts "      #{project['changes'][0]['uploaded'].map { |o| o['key'] }.join("\n      ")}"
-      end
-      puts ""
-      puts "==============================="
-      puts "      Removed:"
-      if project['changes'][0]['removed'].empty?
-        puts "      none"
-      else
-        puts "      #{project['changes'][0]['removed'].map { |o| o['key'] }.join("\n      ")}"
-      end
-      puts ""
-      puts "==============================="
-
-    else !project['success']
-      puts "      Errors:"
-      puts "      #{project['errors'].join("\n      ")}"
-      puts ""
-      puts "==============================="
+    Thread.new do 
+      response = RestClient.put(endpoint, params)
     end
 
-    puts "      Files:"
-    puts "      #{project['base_url']}"
-    puts "        #{project['files'].join("\n        ")}"
+    while !response
+      print "."
+      sleep(1)
+    end
     puts ""
-  else
-    puts "\nNeed api_key and upload endpoint to upload"
+
+    project = JSON.parse(response.to_s)
+
+    message(:upload_successful, {
+      :success => project['success'],
+      :uploaded => project['changes'][0]['uploaded'].empty? ? nil : project['changes'][0]['uploaded'].map { |o| o['key'] },
+      :removed => project['changes'][0]['removed'].empty? ? nil : project['changes'][0]['removed'].map { |o| o['key'] },
+      :files => project['files'],
+      :base_url => project['base_url']
+    })
   end
 end

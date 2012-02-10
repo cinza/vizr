@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby -w
+#!/usr/bin/env ruby -W0
 
 me = if File.symlink?(__FILE__)
   File.readlink(__FILE__)
@@ -6,7 +6,7 @@ else
   __FILE__
 end
 
-VIZER_ROOT =  File.expand_path("..", File.dirname(me))
+VIZR_ROOT =  File.expand_path("..", File.dirname(me))
 WORKING_DIR = Dir.pwd
 
 require 'rubygems'
@@ -14,13 +14,14 @@ require 'bundler/setup'
 require 'rake'
 require 'optparse'
 require 'yaml'
+require 'handlebars'
 
 #disable fileutils verbosity
 verbose(false)
 
-load File.join(VIZER_ROOT, 'tasks/build.rb')
-load File.join(VIZER_ROOT, 'tasks/dist.rb')
-load File.join(VIZER_ROOT, 'tasks/upload.rb')
+load File.join(VIZR_ROOT, 'tasks/build.rb')
+load File.join(VIZR_ROOT, 'tasks/dist.rb')
+load File.join(VIZR_ROOT, 'tasks/upload.rb')
 
 EMPTY_PROJECT_PATH = "./projects"
 DOT_FILE = ".vizr"
@@ -30,7 +31,6 @@ USER_FILE = "~/.vizrrc"
 DEV_PATH = "./dev"
 BUILD_PATH = "./build"
 TMP_PATH = "./tmpbuild"
-
 
 COMMANDS = {}
 
@@ -53,7 +53,7 @@ COMMANDS[:create] = Proc.new do |args|
 
   parser.parse!(args)
   if args[0]
-    src = File.join(File.expand_path(File.join(EMPTY_PROJECT_PATH, options[:type].to_s), VIZER_ROOT), ".")
+    src = File.join(File.expand_path(File.join(EMPTY_PROJECT_PATH, options[:type].to_s), VIZR_ROOT), ".")
     dest = File.expand_path(args[0], WORKING_DIR)
     cp_r(src, dest, {})
     touch(File.join(dest, DOT_FILE))
@@ -124,7 +124,7 @@ COMMANDS[:pull] = Proc.new do |args|
 
   parser.parse!(args)
   if pull
-    cd(VIZER_ROOT)
+    cd(VIZR_ROOT)
     sh "git pull"
     sh "bundle install"
   else
@@ -214,16 +214,9 @@ def check_for_dot_file(target)
   if dot_file
     File.join(target, dot_file)
   else
-    puts "    Vizr problem"
-    puts "================="
-    puts "    Not a valid vizr path"
-    puts "    All commands must be followed by a relative path to the root"
-    puts "    of a vizr project"
-    puts ""
-    puts "================="
-    puts "    Your target: #{target}"
-    puts ""
-
+    message(:not_a_project, {
+      :target => target
+    })
     nil
   end
 end
@@ -267,23 +260,11 @@ def check_lock(target)
   end
 
   if not ok
-    puts "    Vizr problem"
-    puts "================="
-    puts "    It appears this directory was copied from another location."
-    puts "    It is recommended that you create a new project from scratch"
-    puts "    (see: `vizr help create`) in order ensure to you have up-to-date"
-    puts "    project assets"
-    puts ""
-    puts "    If you want to prevent this check, please delete '#{LOCK_FILE}'"
-    puts "    in the project root"
-    puts ""
-    puts "================="
-    puts "    Original path:"
-    puts "    #{content || ""}"
-    puts ""
-    puts "    Target path:"
-    puts "    #{target}"
-    puts ""
+    message(:locked, {
+      :copied_from => (content || "<empty file>").strip,
+      :target => target.strip,
+      :lock_file => LOCK_FILE
+    })
     exit
   end
 
@@ -293,6 +274,19 @@ end
 #TODO
 def check_for_updates
   #git log -n 1 origin
+end
+
+def message(name, context)
+  content = ""
+  path = File.expand_path("messages/#{name.to_s}.hbs", VIZR_ROOT)
+  File.open(path, "r") do |file|
+    content = file.read
+  end
+
+  template = Handlebars.compile(content)
+  puts ""
+  puts template.call(context)
+  puts ""
 end
 
 def parse_args(command_name, args)

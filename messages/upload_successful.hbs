@@ -1,0 +1,22 @@
+Upload {{#if success}}successful{{else}}error{{/if}}
+=========================
+{{#if success}}Uploaded:
+{{#if uploaded}}{{#each uploaded}}{{{this}}}
+{{/each}}
+{{else}}<none>{{/if}}
+
+========================
+Removed:
+{{#if removed}}{{#each removed}}{{{this}}}
+{{/each}}
+{{else}}<none>{{/if}}
+
+========================={{/if}}
+{{#if errors}}Errors:
+{{#each errors}}{{{this}}}
+{{/each}}
+
+========================={{/if}}Files ({{{base_url}}}):
+{{#if files}}{{#each files}}{{{this}}}
+{{/each}}
+{{else}}<none>{{/if}}
