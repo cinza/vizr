@@ -322,7 +322,16 @@ def check_for_updates
   if make_check
     puts "checking for updates..."
     if out_of_date?
-      message(:out_of_date)
+
+      repo = Grit::Repo.new(VIZR_ROOT)
+      branch = repo.head.name
+      local_rev = repo.git.rev_list({ :max_count => 1 }, branch)
+      remote_rev = repo.git.rev_list({ :max_count => 1 }, "origin/#{branch}")
+      commits = repo.commits_between(local_rev, remote_rev).map{|commit| "#{commit.short_message} (#{commit.author})" }
+
+      message(:out_of_date, {
+        :commits => commits
+      })
     else
       puts "already up to date"
       File.open(path, "w") do |file|
