@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby -W0
+
+me = if File.symlink?(__FILE__)
+  File.readlink(__FILE__)
+else
+  __FILE__
+end
+
+VIZR_ROOT =  File.expand_path("..", File.dirname(me))
+WORKING_DIR = Dir.pwd
+
+require File.join(VIZR_ROOT, "lib2", "vizr")
+
+cli = Vizr::Cli.new(VIZR_ROOT, WORKING_DIR)
+cli.parse(ARGV)
