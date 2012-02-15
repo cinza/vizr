@@ -57,24 +57,26 @@ module Vizr
       end || File.join(@root, DOT_FILE)
     end
 
-    # considered locked if there exists a lock file
-    # and its contents do not equal the @root
-    def locked?
-      if @locked == nil
-        @locked = !File.exists?(lockfile) || File.read(lockfile).strip != @root
+    # considered writable if there is not a lock file
+    # or the contents of the lock file == the project root
+    def writable?
+      if @writable == nil
+        path = locked_to_path
+        @writable = !path || path == @root
       end
 
-      @locked
+      @writable
+    end
+
+    def locked?
+      !writable?
     end
 
     # reset lock by replacing value with
-    # the current vulues root
+    # the current project's root
     def reset_lock
-      File.open(lockfile, "w") do |f|
-        f.write(@root)
-      end
-
-       @locked = false
+      locked_to_path = @root
+      @writable = true
     end
 
     def lockfile
@@ -87,6 +89,24 @@ module Vizr
       end.find do |path|
         File.exists?(path)
       end || File.join(@root, LOCK_FILE)
+    end
+
+    def locked_to_path=(path)
+      File.open(lockfile, "w") do |f|
+        f.write(@root)
+      end
+
+      # reset writable. by doing this
+      # we will recheck later
+      @writable = nil
+    end
+
+    def locked_to_path
+      if File.exists?(lockfile)
+        File.read(lockfile).strip
+      else
+        nil
+      end
     end
 
   end

@@ -43,6 +43,10 @@ module Vizr
       commits
     end
 
+    def update!(opts = {})
+      puts "update this"
+    end
+
     def config
       @config ||= VizrConfig.from_yaml(userfile)
     end

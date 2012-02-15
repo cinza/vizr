@@ -4,12 +4,12 @@ require 'optparse'
 module Vizr
   class Cli
 
-    @@commands = {}
-
     def initialize(vizr_root, working_dir)
       @vizr = Vizr.new(vizr_root)
       @working_dir = working_dir
-      @commands = @@commands
+      @commands = {}
+
+      setup_commands
     end
 
     def parse(args)
@@ -45,7 +45,21 @@ module Vizr
 
         project = @vizr.project(project_path)
 
-        cont = (!options[:check_if_project] ||  project.exists?) && (!options[:check_if_locked] || project.locked?)
+        cont = true
+        if options[:check_if_project] && !project.exists?
+          message(:not_a_project, {
+            :target => project.root
+          })
+          cont = false
+        end
+        if options[:check_if_locked] && project.locked?
+          message(:locked, {
+            :copied_from => project.locked_to_path || "<empty file>",
+            :target => project.root,
+            :lock_file => Project::LOCK_FILE
+          })
+          cont = false
+        end
 
         if cont
           command.run(project, args)
@@ -58,7 +72,6 @@ module Vizr
     end
 
     # I hate this class
-    public
     class Command
       attr :name
       attr :description
@@ -87,8 +100,91 @@ module Vizr
 
     protected
 
-    def self.on(name, description, options = {}, &block)
-      @@commands[name.to_sym] = Command.new(name, description, options) do |command|
+    def setup_commands
+      on(:create, "create a new vizr project", :check_if_project => false) do |command|
+        options = {}
+        command.opts.banner = "usage: vizr create [args] <projectpath>"
+       
+        command.opts.on("-t", "--type TYPE", [:basic], "Predefined project type (basic only offered now)") do |type|
+          options[:type] = type.to_sym
+        end
+
+        command.exec do |project, args|
+          if project.exists?
+            message(:projects_exists)
+          else
+            project.create(options)
+          end
+        end
+      end
+
+      on(:build, "build a vizr project") do |command|
+        options = {
+          :minify => true,
+          :jslint => true
+        }
+        command.opts.banner = "usage: vizr build [args] <projectpath>"
+
+        command.opts.on("--no-minify", "Prevent asset minification if available")do
+          options[:minify] = false
+        end
+        
+        command.opts.on("--no-jslint", "Skip JSLint Verification")do
+          options[:jslint] = false
+        end
+
+        command.exec do |project, args|
+          project.build(options)
+        end
+      end
+
+      on(:dist, "zip up the contents of a project's build folder") do |command|
+        options = {}
+        command.opts.banner = "usage: vizr dist [args] <projectpath>"
+
+        command.opts.on("-n", "--filename [NAME]", "File name of zip (default: dist.zip)") do |filename|
+          options[:filename] = filename
+        end
+
+        command.exec do |project, args|
+          project.dist(options)
+        end
+      end
+
+      on(:upload, "upload a project zip to a server") do |command|
+        options = {}
+        command.opts.banner = "usage: vizr upload [args] <projectpath>"
+        command.opts.on("-n", "--filename [NAME]", "File name of zip (default: dist.zip)") do |filename|
+          options[:filename] = filename
+        end
+
+        command.opts.on("--[no-]version", "Version files (versioning allows web browsers to cache content)") do |version|
+          options[:version_files] = version
+        end
+
+        command.exec do |project, args|
+          project.upload(options)
+        end
+      end
+
+      on(:pull, "update vizr builder to newest version", :check_if_project => false) do |command|
+        options = {}
+        command.opts.banner = "Update vizr builder to new version\nusage: vizr pull [args]"
+
+        command.exec do |project, args|
+          @vizr.update!(options)
+        end
+      end
+
+      on(:help, "this information", :parse_options => false, :check_if_project => false) do |command|
+        command.exec do |project, args|
+          help(args[0])
+        end
+      end
+    end
+
+    def on(name, description, options = {}, &block)
+      @commands[name.to_sym] = Command.new(name, description, options) do |command|
         block.call(command)
       end
     end
@@ -115,76 +211,6 @@ module Vizr
     end
 
     private
-
-    on(:create, "create a new vizr project", :check_if_project => false) do |command|
-      options = {}
-      command.opts.banner = "usage: vizr create [args] <projectpath>"
-     
-      command.opts.on("-t", "--type TYPE", [:basic], "Predefined project type (basic only offered now)") do |type|
-        options[:type] = type.to_sym
-      end
-
-      command.exec do |project|
-        if project.exists?
-          message(:projects_exists)
-        else
-          project.create(options)
-        end
-      end
-    end
-
-    on(:build, "build a vizr project") do |command|
-      options = {}
-      command.opts.banner = ""
-
-      command.exec do |project|
-        project.build(options)
-      end
-    end
-
-    on(:dist, "zip up the contents of a project's build folder") do |command|
-      options = {}
-      command.opts.banner = "usage: vizr dist [args] <projectpath>"
-
-      command.opts.on("-n", "--filename [NAME]", "File name of zip (default: dist.zip)") do |filename|
-        options[:filename] = filename
-      end
-
-      command.exec do |project|
-        project.dist(options)
-      end
-    end
-
-    on(:upload, "upload a project zip to a server") do |command|
-      options = {}
-      command.opts.banner = "usage: vizr upload [args] <projectpath>"
-      command.opts.on("-n", "--filename [NAME]", "File name of zip (default: dist.zip)") do |filename|
-        options[:filename] = filename
-      end
-
-      command.opts.on("--[no-]version", "Version files (versioning allows web browsers to cache content)") do |version|
-        options[:version_files] = version
-      end
-
-      command.exec do |project|
-        project.upload(options)
-      end
-    end
-
-    on(:pull, "update vizr builder to newest version") do |command|
-      options = {}
-      command.opts.banner = ""
-
-      command.exec do |project|
-
-      end
-    end
-
-    on(:help, "this information", :parse_options => false, :check_if_project => false) do |command|
-      command.exec do |project, args|
-        help(args[0])
-      end
-    end 
 
     def message(name, context = {})
       path = File.join("messages", "#{name.to_s}.hbs")
