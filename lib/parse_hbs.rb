@@ -36,7 +36,7 @@ Handlebars.register_helper(:render) do |path, block|
 end
 
 Handlebars.register_helper(:enc) do |string, block|
-  content = string.gsub(" ", "-").gsub(/[^[:alnum:]]/, '').downcase!
+  content = string.gsub(/[^[:alnum:][:space:]]/, '').gsub(" ", "-").downcase
 end
 
 # actually do stuff
