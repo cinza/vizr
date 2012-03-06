@@ -3,7 +3,7 @@
   <div class="massrel-content">
     <div class="massrel-author">
       {{#if retweet}}
-      <div class="massrel-retweeted-by"><img src="./img/retweet_hover.png" alt="retweeted" /> by <a href="https://twitter.com/{{retweeted_by_user.screen_name}}" class="massrel-retweeted-by-user">{{retweeted_by_user.screen_name}}</div>
+      <div class="massrel-retweeted-by"><img src="./img/retweet_hover.png" alt="retweeted" /> by <a href="https://twitter.com/{{retweeted_by_user.screen_name}}" class="massrel-retweeted-by-user">{{retweeted_by_user.screen_name}}</a></div>
       {{/if}}
       <a href="https://twitter.com/{{status.user.screen_name}}" class="massrel-screen-name">{{status.user.screen_name}}</a>
       <span class="massrel-real-name">{{status.user.name}}</span>
