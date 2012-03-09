@@ -75,6 +75,7 @@ task :move_to_build, :target do |t, args|
   end
   
   cp(Dir[File.join(tmp, "*.html")], build)
+  cp(Dir[File.join(tmp, "*.manifest")], build)
 end
 
 task :clean_up, :target do |t, args|
