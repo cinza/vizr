@@ -28,9 +28,13 @@ function prettyDate(time) {
         weeks_ago: 'weeks ago'
       };
 
-  if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31 ) {
-    return 'now';
+  if (isNaN(day_diff) || day_diff < 0) {
+    return time_str.just_now;
   }
+  else if(day_diff >= 31) {
+    return;
+  }
+
 
   return (day_diff === 0) && (
     (diff < 60 && time_str.just_now) ||
