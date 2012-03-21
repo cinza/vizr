@@ -29,19 +29,19 @@ function prettyDate(time) {
       };
 
   if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31 ) {
-    return;
+    return 'now';
   }
 
   return (day_diff === 0) && (
-      (diff < 60 && time_str.just_now) ||
-      (diff < 120 && time_str.one_minute_ago) ||
-      (diff < 3600 && Math.floor( diff / 60 ) + ' ' + time_str.minutes_ago) ||
-      (diff < 7200 && time_str.one_hour_ago) ||
-      (diff < 86400 && Math.floor( diff / 3600 ) + ' ' + time_str.hours_ago)
-    ) ||
-    (day_diff === 1 && time_str.yesterday) ||
-    (day_diff < 7 && day_diff + ' ' + time_str.days_ago) ||
-    (day_diff < 14 && time_str.one_week_ago) ||
-    (day_diff < 31 && Math.ceil( day_diff / 7 ) + ' ' + time_str.weeks_ago);
+    (diff < 60 && time_str.just_now) ||
+    (diff < 120 && time_str.one_minute_ago) ||
+    (diff < 3600 && Math.floor( diff / 60 ) + ' ' + time_str.minutes_ago) ||
+    (diff < 7200 && time_str.one_hour_ago) ||
+    (diff < 86400 && Math.floor( diff / 3600 ) + ' ' + time_str.hours_ago)
+  ) ||
+  (day_diff === 1 && time_str.yesterday) ||
+  (day_diff < 7 && day_diff + ' ' + time_str.days_ago) ||
+  (day_diff < 14 && time_str.one_week_ago) ||
+  (day_diff < 31 && Math.ceil( day_diff / 7 ) + ' ' + time_str.weeks_ago);
 
 }
