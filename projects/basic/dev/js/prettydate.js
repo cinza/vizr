@@ -15,7 +15,7 @@ function prettyDate(time) {
   var date = new Date((time || '').replace(/-/g, '/').replace(/[TZ][^hu]/g, ' ')),
       diff = (((new Date()).getTime() - date.getTime()) / 1000),
       day_diff = Math.floor(diff / 86400),
-			mth_diff = (((new Date()).getFullYear() - date.getFullYear()) * 12) - (date.getMonth() + 1) + (new Date()).getMonth(), 
+			mth_diff = (((new Date()).getFullYear() - date.getFullYear()) * 12) - ((new Date()).getMonth() + 1) + (date.getMonth() + 1), 
       // string settings
       time_str = {
         just_now: 'a moment ago',
