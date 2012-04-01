@@ -129,15 +129,23 @@ COMMANDS[:pull] = Proc.new do |args|
   if pull
 
     cd(VIZR_ROOT)
-    if out_of_date?
-      puts "git out of date...updating"
-      sh "git pull"
-    else 
-      puts "git up to date"
-    end
+    begin
+      if out_of_date?
+        puts "git out of date...updating"
+        sh "git pull"
+      else 
+        puts "git up to date"
+      end
 
-    puts "checking dependencies"
-    sh "bundle install"
+      puts "checking dependencies"
+      sh "bundle install"
+
+    rescue Grit::Git::GitTimeout => e
+      puts "Can't connect to remote branch. Try again later"
+    rescue => e
+      # another assumption
+      puts "Can't connect to remote branch. Try again later"
+    end
   else
     puts parser
   end
@@ -326,24 +334,28 @@ def check_for_updates
 
   if make_check
     puts "checking for updates..."
-    if out_of_date?
+    begin
+      if out_of_date?
 
-      repo = Grit::Repo.new(VIZR_ROOT)
-      branch = repo.head.name
-      local_rev = repo.git.rev_list({ :max_count => 1 }, branch)
-      remote_rev = repo.git.rev_list({ :max_count => 1 }, "origin/#{branch}")
-      commits = repo.commits_between(local_rev, remote_rev).map{|commit| "#{commit.short_message} (#{commit.author})" }
+        repo = Grit::Repo.new(VIZR_ROOT)
+        branch = repo.head.name
+        local_rev = repo.git.rev_list({ :max_count => 1 }, branch)
+        remote_rev = repo.git.rev_list({ :max_count => 1 }, "origin/#{branch}")
+        commits = repo.commits_between(local_rev, remote_rev).map{|commit| "#{commit.short_message} (#{commit.author})" }
 
-      message(:out_of_date, {
-        :commits => commits
-      })
-    else
-      puts "already up to date"
-      File.open(path, "w") do |file|
-        file.write(Time.now.to_i.to_s)
+        message(:out_of_date, {
+          :commits => commits
+        })
+      else
+        puts "already up to date"
+        File.open(path, "w") do |file|
+          file.write(Time.now.to_i.to_s)
+        end
       end
+    rescue Grit::Git::GitTimeout => e
+      puts "Can't connect to remote branch. Try again later"
     end
-    
+
   end
 end
 
