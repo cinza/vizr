@@ -1,5 +1,5 @@
   /*!
-   * massrel/stream-js 0.9.5
+   * massrel/stream-js 0.9.7
    *
    * Copyright 2012 Mass Relevance
    *
@@ -493,24 +493,31 @@ define('meta_poller',['helpers'], function(helpers) {
   function MetaPoller(object, opts) {
     var self = this
       , fetch = function() {
-          object.meta(opts, function(data) { // success
-            helpers.step_through(data, self._listeners, self);
-            again();
-          }, function() { // error
-            again();
-          });
+          if(enabled) {
+            object.meta(self.opts, function(data) { // success
+              if(enabled) { // being very thorough in making sure to stop polling when told
+                helpers.step_through(data, self._listeners, self);
+
+                if(enabled) { // poller can be stopped in any of the above iterators
+                  again();
+                }
+              }
+            }, function() { // error
+              again();
+            });
+          }
         }
       , again = function() {
-          tmo = setTimeout(fetch, helpers.poll_interval(self.frequency));
+          tmo = setTimeout(fetch, helpers.poll_interval(self.opts.frequency));
         }
       , enabled = false
       , tmo;
 
     this._listeners = [];
 
-    opts = opts || {};
-    this.frequency = (opts.frequency || 30) * 1000;
-    delete opts.frequency;
+    this.opts = opts || {};
+    
+    this.opts.frequency = (this.opts.frequency || 30) * 1000;
 
     this.start = function() {
       if(!enabled) { // guard against multiple pollers
@@ -905,6 +912,18 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
     if(opts.disregard) {
       params.push(['disregard', opts.disregard]);
     }
+    if(opts.num_minutes) {
+      params.push(['num_minutes', opts.num_minutes]);
+    }
+    if(opts.num_days) {
+      params.push(['num_days', opts.num_days]);
+    }
+    if(opts.top_periods) {
+      params.push(['top_periods', opts.top_periods]);
+    }
+    if(opts.finish) {
+      params.push(['finish', opts.finish]);
+    }
     return params;
   };
   Stream.prototype.metaPoller = function(opts) {
@@ -925,7 +944,7 @@ define('context',['helpers'], function(helpers) {
       message: false
     };
     this.known = false;
-    this.intents = false;
+    this.intents = true;
   }
 
   Context.create = function(status, opts) {
@@ -936,6 +955,8 @@ define('context',['helpers'], function(helpers) {
       intents: true,
       retweeted_by: true
     });
+
+    context.intents = opts.intents;
 
     // determine status source
     if(status.id_str && status.text && status.entities) {
@@ -964,6 +985,71 @@ define('context',['helpers'], function(helpers) {
   return Context;
 });
 
+define('intents',['helpers'], function(helpers) {
+
+  var intents = {
+    base_url: 'https://twitter.com/intent/',
+    params: {
+      'text'       : '(string): default text, for tweet/reply',
+      'url'        : '(string): prefill url, for tweet/reply',
+      'hashtags'   : '(string): hashtag (or list with ,) without #, for tweet/reply',
+      'related'    : '(string): screen name (or list with ,) without @, available for all',
+      'in_reply_to': '(number): tweet id, only for reply',
+      'via'        : '(string): screen name without @, tweet/reply',
+      'tweet_id'   : '(number): tweet id, for retweet and favorite',
+      'screen_name': '(string): only for user/profile',
+      'user_id'    : '(number): only for user/profile'
+    }
+  };
+
+  intents.url = function(type, options) {
+    options = options || {};
+    var params = [];
+    for(var k in options) {
+      params.push([k, options[k]]);
+    }
+
+    return intents.base_url+encodeURIComponent(type)+'?'+helpers.to_qs(params);
+  };
+
+  intents.tweet = function(options) {
+    return intents.url('tweet', options);
+  };
+
+  intents.reply = function(in_reply_to, options) {
+    options = options || {};
+    options.in_reply_to = in_reply_to;
+    return intents.tweet(options);
+  };
+
+  intents.retweet = function(tweet_id, options) {
+    options = options || {};
+    options.tweet_id = tweet_id;
+    return intents.url('retweet', options);
+  };
+
+  intents.favorite = function(tweet_id, options) {
+    options = options || {};
+    options.tweet_id = tweet_id;
+    return intents.url('favorite', options);
+  };
+
+  intents.user = function(screen_name_or_id, options) {
+    options = options || {};
+    if(!isNaN(parseInt(screen_name_or_id, 10))) {
+      options.user_id = screen_name_or_id;
+    }
+    else {
+      options.screen_name = screen_name_or_id;
+    }
+    return intents.url('user', options);
+  };
+  // alias
+  intents.profile = intents.user;
+
+  return intents;
+});
+
 define('massrel', [
          'globals'
        , 'helpers'
@@ -973,6 +1059,7 @@ define('massrel', [
        , 'meta_poller'
        , 'poller_queue'
        , 'context'
+       , 'intents'
        ], function(
          globals
        , helpers
@@ -982,6 +1069,7 @@ define('massrel', [
        , MetaPoller
        , PollerQueue
        , Context
+       , intents
        ) {
 
   var massrel = window.massrel;
@@ -997,6 +1085,7 @@ define('massrel', [
   massrel.PollerQueue = PollerQueue;
   massrel.Context = Context;
   massrel.helpers = helpers;
+  massrel.intents = intents;
 
   // require/AMD methods
   massrel.define = define;
