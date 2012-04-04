@@ -3,5 +3,7 @@ task :package, :target, :options do |t, args|
   options = args[:options]
   
   cd File.join(target, "build")
-  sh "zip -r ../#{options[:filename]} ."
+  filename = "../#{options[:filename]}"
+  rm_f(filename) # remove filename if it exists (repacking has caused issues)
+  sh "zip -r #{filename} ."
 end
