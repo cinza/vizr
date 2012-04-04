@@ -61,8 +61,12 @@ task :create_build_directory, :target do |t, args|
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
 
-  rm_rf(build)
-  mkdir(build)
+  # remove only build folder contents, not the folder
+  # prevents weird file descriptor issue if directly serving directory
+  rm_rf(File.join(build, "*"))
+
+  # create directory if it doesn't exist
+  mkdir_p(build)
 end
 
 task :move_to_build, :target do |t, args|
