@@ -40,12 +40,12 @@ task :process_files, :target, :options do |t, args|
     jopts << ' -s'
   end
 
-  if File.exist?("main.css")
+  if File.exist?(File.join(tmp, "css", "main.css"))
     sh "juicer merge -i #{jopts} #{File.join(tmp, "css", "main.build.css")} #{File.join(tmp, "css", "main.css")}"
     mv(File.join(tmp, "css", "main.min.css"), File.join(tmp, "css", "main.css"), :force => true)
   end
 
-  if File.exist?("main.js")
+  if File.exist?(File.join(tmp, "js", "main.js"))
     sh "juicer merge -i #{jopts} none #{File.join(tmp, "css", "main.build.js")} #{File.join(tmp, "js", "main.js")}"
     mv(File.join(tmp, "js", "main.min.js"), File.join(tmp, "js", "main.js"), :force => true)
   end
