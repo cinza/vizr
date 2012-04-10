@@ -40,14 +40,18 @@ task :process_files, :target, :options do |t, args|
     jopts << ' -s'
   end
 
-  if File.exist?(File.join(tmp, "css", "main.css"))
-    sh "juicer merge -i #{jopts} #{File.join(tmp, "css", "main.build.css")} #{File.join(tmp, "css", "main.css")}"
-    mv(File.join(tmp, "css", "main.min.css"), File.join(tmp, "css", "main.css"), :force => true)
+  if File.exist?(File.join(tmp, "css"))
+    Dir.glob(File.join(tmp, "css", "*.css")) do |item|
+      sh "juicer merge -i #{jopts} #{item}"
+      mv(item.gsub('.css', '.min.css'), item, :force => true)
+    end
   end
 
-  if File.exist?(File.join(tmp, "js", "main.js"))
-    sh "juicer merge -i #{jopts} none #{File.join(tmp, "css", "main.build.js")} #{File.join(tmp, "js", "main.js")}"
-    mv(File.join(tmp, "js", "main.min.js"), File.join(tmp, "js", "main.js"), :force => true)
+  if File.exist?(File.join(tmp, "js"))
+    Dir.glob(File.join(tmp, "js", "*.js")) do |item|
+      sh "juicer merge -i #{jopts} #{item}"
+      mv(item.gsub('.js', '.min.js'), item, :force => true)
+    end
   end
 
   Dir[File.join(tmp, "*.hbs")].each do |hbs|
