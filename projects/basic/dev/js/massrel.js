@@ -1,5 +1,5 @@
   /*!
-   * massrel/stream-js 0.9.7
+   * massrel/stream-js 0.9.8
    *
    * Copyright 2012 Mass Relevance
    *
@@ -754,7 +754,7 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
         self.consecutive_errors = 0;
         var catch_up = self.catch_up && statuses.length === self.limit;
         
-        if(statuses.length > 0) {
+        if(statuses && statuses.length > 0) {
           self.since_id = statuses[0].entity_id;
 
           if(!self.start_id) { // grab last item ID if it has not been set
@@ -821,7 +821,8 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
     return helpers.extend({
       limit: this.limit,
       replies: this.replies,
-      geo_hint: this.geo_hint
+      geo_hint: this.geo_hint,
+      keywords: this.keywords
     }, opts || {});
   };
 
@@ -914,6 +915,9 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
     }
     if(opts.num_minutes) {
       params.push(['num_minutes', opts.num_minutes]);
+    }
+    if(opts.num_hours) {
+      params.push(['num_hours', opts.num_hours]);
     }
     if(opts.num_days) {
       params.push(['num_days', opts.num_days]);
