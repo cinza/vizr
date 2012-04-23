@@ -67,7 +67,7 @@ task :create_build_directory, :target do |t, args|
 
   # remove only build folder contents, not the folder
   # prevents weird file descriptor issue if directly serving directory
-  rm_rf(File.join(build, "*"))
+  rm_rf(Dir[File.join(build, "*")])
 
   # create directory if it doesn't exist
   mkdir_p(build)
