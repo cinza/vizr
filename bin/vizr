@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby -W0
- 
+
 me = if File.symlink?(__FILE__)
   File.readlink(__FILE__)
 else
@@ -72,11 +72,11 @@ COMMANDS[:build] = Proc.new do |args|
     opts.on("--no-minify", "Prevent asset minification if available") do
       options[:minify] = false
     end
-    
+
     opts.on("--no-jslint", "Skip JSLint Verification") do
       options[:jslint] = false
     end
-    
+
     opts.on("--dev", "Development build") do
       options[:minify] = false
       options[:jslint] = false
@@ -138,7 +138,7 @@ COMMANDS[:pull] = Proc.new do |args|
       if out_of_date?
         puts "git out of date...updating"
         sh "git pull"
-      else 
+      else
         puts "git up to date"
       end
 
@@ -303,10 +303,15 @@ def check_lock(target)
     end
   rescue
     # create lock file
-    sh "echo \"#{target}\" > \"#{lock_path}\""
+    sh %{echo "#{target}" > "#{lock_path}"}
 
     # make sure lock file doesn't get checked in
-    sh "echo \"#{LOCK_FILE}\" >> \"#{File.join(target, ".gitignore")}\""
+    ignore = File.join(target, ".gitignore")
+    sh %{grep #{LOCK_FILE} #{ignore} > /dev/null} do |ok, res|
+      if not ok
+        sh %{echo "#{LOCK_FILE}" >> "#{ignore}"}
+      end
+    end
   end
 
   if not ok
