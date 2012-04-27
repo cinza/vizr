@@ -26,6 +26,10 @@
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', '{{ga.code}}']);
     _gaq.push(['_trackPageview']);
+    {{#if ga.alt_code}}
+    _gaq.push(['b._setAccount', '{{ga.alt_code}}']);
+    _gaq.push(['b._trackPageview']);
+    {{/if}}
 
     (function() {
       var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
