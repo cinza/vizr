@@ -69,11 +69,11 @@ COMMANDS[:build] = Proc.new do |args|
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr build [args] <projectpath>"
 
-    opts.on("--no-minify", "Prevent asset minification if available") do |minify|
+    opts.on("--[no-]minify", "Minify assets if available (#{options[:minify] ? "enabled" : "disabled"} by default)") do |minify|
       options[:minify] = minify
     end
 
-    opts.on("--no-jslint", "Skip JSLint Verification") do |jslint|
+    opts.on("--[no-]jslint", "Lint check JavaScript (#{options[:jslint] ? "enabled" : "disabled"} by default)") do |jslint|
       options[:jslint] = jslint
     end
 
