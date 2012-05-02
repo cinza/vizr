@@ -1,16 +1,16 @@
 require 'rubygems'
 require 'json'
 
-dir = File.dirname(File.expand_path(ARGV[0]))
-
+dir = File.expand_path(ARGV[0])
 cached = {}
-paths = Dir[ARGV[0]].map{ |path|
+
+paths = Dir[ARGV[1]].map{ |path|
   File.expand_path(path, dir).gsub("#{dir}/", "")
 }.select{ |path|
   !path.start_with?(".")
 }.each { |path|
   extension = File.extname(path).gsub(".", "")
-  stripped = path.gsub(/^\.\//, '').gsub(/^scripts\//, '').gsub(/\.[A-Za-z0-9]+/, "")
+  stripped = path.gsub(/^\.\//, '')
   cached["#{extension}!#{stripped}"] = path
 }
 

@@ -92,7 +92,7 @@ task :move_to_build, :target, :options do |t, args|
   cp(Dir[File.join(tmp, "*.manifest")], build)
 
   if options[:make_cache_path_file]
-     sh "ruby #{File.join(VIZR_ROOT, "lib", "cachepath.rb")} #{File.join(build, "**", "*")} > #{File.join(build, "js", "cachepath.js")}"
+     sh "ruby #{File.join(VIZR_ROOT, "lib", "cachepath.rb")} \"#{build}\" \"#{File.join(build, "**", "*")}\" > #{File.join(build, "js", "cachepath.js")}"
   end
 end
 
