@@ -68,7 +68,8 @@ end
 COMMANDS[:build] = Proc.new do |args|
   options = {
     :minify => true,
-    :jslint => false
+    :jslint => false,
+    :make_cache_path_file => false
   }
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr build [args] <projectpath>"
@@ -84,6 +85,10 @@ COMMANDS[:build] = Proc.new do |args|
     opts.on("--dev", "Development build") do
       options[:minify] = false
       options[:jslint] = false
+    end
+
+    opts.on("--cachepath", "Generate file to look up paths by original names") do
+      options[:make_cache_path_file] = true
     end
 
     opts.on("--skip-update-check", "Skip check for vizr updates") do

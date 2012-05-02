@@ -73,8 +73,10 @@ task :create_build_directory, :target do |t, args|
   mkdir_p(build)
 end
 
-task :move_to_build, :target do |t, args|
+task :move_to_build, :target, :options do |t, args|
   target = args[:target]
+  options = args[:options]
+
   dev = File.expand_path(DEV_PATH, target)
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
@@ -88,6 +90,10 @@ task :move_to_build, :target do |t, args|
 
   cp(Dir[File.join(tmp, "*.html")], build)
   cp(Dir[File.join(tmp, "*.manifest")], build)
+
+  if options[:make_cache_path_file]
+     sh "ruby #{File.join(VIZR_ROOT, "lib", "cachepath.rb")} #{File.join(build, "**", "*")} > #{File.join(build, "js", "cachepath.js")}"
+  end
 end
 
 task :clean_up, :target do |t, args|
