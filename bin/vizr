@@ -102,7 +102,7 @@ COMMANDS[:build] = Proc.new do |args|
   end
 
   parser.parse!(args)
-  setup_env(:build, args) do |target, env|
+  setup_env(:build, args, options) do |target, env|
     Rake::Task["build"].invoke(target, options)
   end
 end
