@@ -46,6 +46,10 @@ COMMANDS[:create] = Proc.new do |args|
       options[:type] = type.to_sym
     end
 
+    opts.on("--skip-update-check", "Skip check for vizr updates") do
+      options[:check_for_updates] = false
+    end
+
     opts.on_tail("-h", "--help", "Show this message") do
       puts opts
       exit
@@ -82,6 +86,10 @@ COMMANDS[:build] = Proc.new do |args|
       options[:jslint] = false
     end
 
+    opts.on("--skip-update-check", "Skip check for vizr updates") do
+      options[:check_for_updates] = false
+    end
+
     opts.on_tail("-h", "--help", "Show this message") do
       puts opts
       exit
@@ -104,6 +112,10 @@ COMMANDS[:dist] = Proc.new do |args|
     options[:name] = "dist.zip"
     opts.on("-n", "--filename [NAME]", "File name of zip (default: dist.zip)") do |filename|
       options[:filename] = filename
+    end
+
+    opts.on("--skip-update-check", "Skip check for vizr updates") do
+      options[:check_for_updates] = false
     end
 
     opts.on_tail("-h", "--help", "Show this message") do
@@ -170,6 +182,10 @@ COMMANDS[:upload] = Proc.new do |args|
 
     opts.on("--[no-]version", "Version files (versioning allows web browsers to cache content)") do |version|
       options[:version_files] = version
+    end
+
+    opts.on("--skip-update-check", "Skip check for vizr updates") do
+      options[:check_for_updates] = false
     end
 
     opts.on_tail("-h", "--help", "Show this message") do
