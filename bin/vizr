@@ -235,7 +235,7 @@ def setup_env(command, args, options = {}, &block)
       end
     end
 
-    if (!options[:check_if_project] || dot_file) && check_lock(target)
+    if (!options[:check_if_project] || dot_file) && (!options[:check_if_project] || check_lock(target))
       block.call(target, env)
     end
   else
