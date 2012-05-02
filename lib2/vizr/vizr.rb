@@ -18,15 +18,19 @@ module Vizr
     end
 
     def updated?
-      repo = Grit::Repo.new(@root)
+      if @updated == nil
+        repo = Grit::Repo.new(@root)
 
-      branch = repo.head.name
-      repo.remote_fetch('origin')
-      local_rev = repo.git.rev_list({ :max_count => 1 }, branch)
-      remote_rev = repo.git.rev_list({ :max_count => 1 }, "origin/#{branch}")
+        branch = repo.head.name
+        repo.remote_fetch('origin')
+        local_rev = repo.git.rev_list({ :max_count => 1 }, branch)
+        remote_rev = repo.git.rev_list({ :max_count => 1 }, "origin/#{branch}")
 
-      # making some assumptions here
-      local_rev != remote_rev
+        # making some assumptions here
+        @updated = local_rev != remote_rev
+      end
+
+      @updated
     end
 
     def new_updates
@@ -76,6 +80,8 @@ module Vizr
     def last_update_check_file
       File.join(@root, LAST_UPDATE_CHECK_FILE)
     end
+
+    private
 
   end
 end
