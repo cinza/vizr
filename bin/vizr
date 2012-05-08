@@ -16,6 +16,7 @@ require 'rake'
 require 'optparse'
 require 'yaml'
 require 'handlebars'
+require 'filewatcher'
 
 #disable fileutils verbosity
 verbose(false)
@@ -69,7 +70,8 @@ COMMANDS[:build] = Proc.new do |args|
   options = {
     :minify => true,
     :jslint => false,
-    :make_cache_path_file => false
+    :make_cache_path_file => false,
+    :watch => false
   }
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr build [args] <projectpath>"
@@ -93,6 +95,10 @@ COMMANDS[:build] = Proc.new do |args|
 
     opts.on("--skip-update-check", "Skip check for vizr updates") do
       options[:check_for_updates] = false
+    end
+
+    opts.on("--watch", "Rebuild project on file changes") do
+      options[:watch] = true
     end
 
     opts.on_tail("-h", "--help", "Show this message") do

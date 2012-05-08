@@ -1,14 +1,45 @@
 task :build, :target, :options do |t, args|
+  target = args[:target]
+  options = args[:options]
+  dev = File.expand_path(DEV_PATH, target)
+  tmp = File.expand_path(TMP_PATH, target)
+  build = File.expand_path(BUILD_PATH, target)
+
   [ :create_working_directory,
     :process_files,
     :create_build_directory,
     :move_to_build,
     :clean_up
   ].each do |task|
-    target = args[:target]
-    options = args[:options]
     Rake::Task[task].invoke(target, options)
   end
+
+  if options[:watch]
+    puts "\nWatching project for changes..."
+
+    last_change_time = 0.0
+    FileWatcher.new(["#{dev}/", "#{target}/env.yaml"]).watch(0.5) do |filename|
+      puts "Updated #{filename}"
+
+      now = Time.now.to_f
+
+      # only run tasks if we have not run the tasks in the last second
+      # this tries to prevent multiple builds when > 1 file updates simultaneously
+      if now - last_change_time >= 1.0
+        [ :create_working_directory,
+          :process_files,
+          :create_build_directory,
+          :move_to_build,
+          :clean_up
+        ].each do |task|
+          Rake::Task[task].reenable
+          Rake::Task[task].invoke(target, options)
+        end
+        last_change_time = now
+      end
+    end
+  end
+
 end
 
 task :create_working_directory, :target do |t, args|
