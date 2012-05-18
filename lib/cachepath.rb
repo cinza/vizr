@@ -10,7 +10,7 @@ paths = Dir[ARGV[1]].map{ |path|
   !path.start_with?(".")
 }.each { |path|
   extension = File.extname(path).gsub(".", "")
-  stripped = path.gsub(/^\.\//, '')
+  stripped = path.gsub(/\.[^.]+$/, '')
   cached["#{extension}!#{stripped}"] = path
 }
 
