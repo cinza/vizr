@@ -16,7 +16,7 @@ require 'rake'
 require 'optparse'
 require 'yaml'
 require 'handlebars'
-require 'filewatcher'
+require 'fssm'
 
 #disable fileutils verbosity
 verbose(false)

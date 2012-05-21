@@ -17,15 +17,18 @@ task :build, :target, :options do |t, args|
   if options[:watch]
     puts "\nWatching project for changes..."
 
-    last_change_time = 0.0
-    FileWatcher.new(["#{dev}/", "#{target}/env.yaml"]).watch(0.5) do |filename|
-      puts "Updated #{filename}"
+    last_change_time = Time.now.to_f
 
-      now = Time.now.to_f
+    rebuild = lambda { |base, relative|
+      puts "Updated #{File.join(base, relative)}"
+
+      time_since_build = Time.now.to_f - last_change_time
+
+      puts "#{time_since_build} seconds since last build"
 
       # only run tasks if we have not run the tasks in the last second
       # this tries to prevent multiple builds when > 1 file updates simultaneously
-      if now - last_change_time >= 1.0
+      if time_since_build >= 1.0
         [ :create_working_directory,
           :process_files,
           :create_build_directory,
@@ -35,10 +38,22 @@ task :build, :target, :options do |t, args|
           Rake::Task[task].reenable
           Rake::Task[task].invoke(target, options)
         end
-        last_change_time = now
+        last_change_time = Time.now.to_f
+      else
+        puts "Last build less than 1 seconds ago, skipping"
       end
+    }
+
+    FSSM.monitor(target, ["dev/**/*", "env.yaml"], :directories => true) do
+      update {|base, relative| rebuild.call(base, relative)}
+      create {|base, relative| rebuild.call(base, relative)}
+      delete {|base, relative| rebuild.call(base, relative)}
     end
   end
+
+end
+
+def rebuild(triggerring_path)
 
 end
 
