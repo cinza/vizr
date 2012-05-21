@@ -5,16 +5,8 @@ task :build, :target, :options do |t, args|
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
 
-  [ :create_working_directory,
-    :process_files,
-    :create_build_directory,
-    :move_to_build,
-    :clean_up
-  ].each do |task|
-    Rake::Task[task].invoke(target, options)
-  end
-
   if options[:watch]
+
     puts "\nWatching project for changes..."
 
     last_change_time = Time.now.to_f
@@ -29,32 +21,56 @@ task :build, :target, :options do |t, args|
       # only run tasks if we have not run the tasks in the last second
       # this tries to prevent multiple builds when > 1 file updates simultaneously
       if time_since_build >= 1.0
-        [ :create_working_directory,
-          :process_files,
-          :create_build_directory,
-          :move_to_build,
-          :clean_up
-        ].each do |task|
-          Rake::Task[task].reenable
-          Rake::Task[task].invoke(target, options)
-        end
+        watched_build(target, options)
         last_change_time = Time.now.to_f
       else
         puts "Last build less than 1 seconds ago, skipping"
       end
     }
 
+    # Run the first build
+    watched_build(target, options)
+
+    # Watch for changes
     FSSM.monitor(target, ["dev/**/*", "env.yaml"], :directories => true) do
       update {|base, relative| rebuild.call(base, relative)}
       create {|base, relative| rebuild.call(base, relative)}
       delete {|base, relative| rebuild.call(base, relative)}
     end
-  end
 
+  else # single build / no watching
+
+    single_build(target, options)
+
+  end
 end
 
-def rebuild(triggerring_path)
+def watched_build(target, options)
+  [ :create_working_directory,
+    :process_files,
+    :create_build_directory,
+    :move_to_build,
+    :clean_up
+  ].each do |task|
+    Rake::Task[task].reenable
+    begin
+      Rake::Task[task].invoke(target, options)
+    rescue
+      puts "ERROR: Build failed to complete, continuing to watch for changes"
+      break
+    end
+  end
+end
 
+def single_build(target, options)
+  [ :create_working_directory,
+    :process_files,
+    :create_build_directory,
+    :move_to_build,
+    :clean_up
+  ].each do |task|
+    Rake::Task[task].invoke(target, options)
+  end
 end
 
 task :create_working_directory, :target do |t, args|
