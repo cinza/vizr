@@ -1,3 +1,6 @@
+NODE_VERSION = "0.6.18"
+NODE_VERSION_FILTER = /v0\.6.*/
+
 task :build, :target, :options do |t, args|
   target = args[:target]
   options = args[:options]
@@ -118,6 +121,27 @@ task :process_files, :target, :options do |t, args|
 
   Dir[File.join(tmp, "*.hbs")].each do |hbs|
     sh "ruby #{File.join(VIZR_ROOT, "lib", "parse_hbs.rb")} \"#{hbs}\" #{File.join(target, "env.yaml")} > #{File.join(tmp, File.basename(hbs, ".hbs"))}"
+  end
+end
+
+def node?
+  # First test if node exists at all
+  IO.popen("which node") { |io|
+    io.read
+  }
+
+  if !$?
+    raise "This project requires Node.js #{NODE_VERSION} to build, please update Vagrant and run from there."
+  end
+
+  # Is an acceptable version?
+  version = ""
+  IO.popen("node --version") { |io|
+    version = io.read
+  }
+
+  if !(version =~ NODE_VERSION_FILTER)
+    raise "This project requires Node.js #{NODE_VERSION} to build, please update Vagrant and run from there."
   end
 end
 
