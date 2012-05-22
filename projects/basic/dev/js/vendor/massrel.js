@@ -321,7 +321,7 @@ define('helpers',['globals'], function(globals) {
         to_obj[prop] = from_obj[prop];
       }
     }
-    
+
     return to_obj;
   };
 
@@ -344,7 +344,7 @@ define('helpers',['globals'], function(globals) {
       else if(exports.is_array(callback) && callback.length > 0) {
         helpers.step_through(data, callback, obj);
       }
-      
+
       delete globals._json_callbacks[callback_id];
 
       fulfilled = true;
@@ -388,7 +388,7 @@ define('helpers',['globals'], function(globals) {
         if (root && script.parentNode) {
           root.removeChild(script);
         }
-        
+
         if(typeof fn === 'function') {
           fn();
         }
@@ -516,7 +516,7 @@ define('meta_poller',['helpers'], function(helpers) {
     this._listeners = [];
 
     this.opts = opts || {};
-    
+
     this.opts.frequency = (this.opts.frequency || 30) * 1000;
 
     this.start = function() {
@@ -700,7 +700,7 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
     this._enumerators = [];
     this._bound_enum = false;
     this._t = null;
-    
+
     opts = opts || {};
     this.limit = opts.limit || null;
     this.since_id = opts.since_id || null;
@@ -739,7 +739,7 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
     }
     this.enabled = true;
     var instance_id = this.alive_instance = this.alive_instance + 1;
-    
+
     var self = this;
     function poll() {
       self.alive = false;
@@ -753,19 +753,19 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
         self.alive = true;
         self.consecutive_errors = 0;
         var catch_up = self.catch_up && statuses.length === self.limit;
-        
+
         if(statuses && statuses.length > 0) {
           self.since_id = statuses[0].entity_id;
 
           if(!self.start_id) { // grab last item ID if it has not been set
             self.start_id = statuses[statuses.length - 1].entity_id;
           }
-          
+
           // invoke all batch handlers on this poller
           for(var i = 0, len = self._callbacks.length; i < len; i++) {
             self._callbacks[i].call(self, statuses); // we might need to pass in a copy of statuses array
           }
-          
+
           // invoke all enumerators on this poller
           helpers.step_through(statuses, self._enumerators, self);
         }
@@ -776,9 +776,9 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
       });
 
     }
-  
+
     poll();
-    
+
     return this;
   };
   Poller.prototype.stop = function() {
@@ -834,10 +834,10 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
 
   function Stream() {
     var args = arguments.length === 1 ? arguments[0].split('/') : arguments;
-    
+
     this.account = args[0];
     this.stream_name = args[1];
-    
+
     this._enumerators = [];
   }
   Stream.prototype.stream_url = function() {
@@ -850,7 +850,7 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
     opts = helpers.extend(opts || {}, {
       // put defaults
     });
-    
+
     var params = this.buildParams(opts);
     helpers.jsonp_factory(this.stream_url(), params, '_', this, fn || this._enumerators, error);
 
@@ -901,10 +901,10 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
     else {
       throw new Error('incorrect arguments');
     }
-    
+
     var params = this.buildMetaParams(opts);
     helpers.jsonp_factory(this.meta_url(), params, 'meta_', this, fn, error);
-    
+
     return this;
   };
   Stream.prototype.buildMetaParams = function(opts) {

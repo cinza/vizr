@@ -1,70 +1,69 @@
-/*jslint browser: true, sloppy: true, white: true, nomen: false, plusplus: true, maxerr: 50, indent: 4 */
 // requires jQuery
 (function() {
 
-function UIList(selector, opts) {
-  this.elList = $(selector);
-  this.existing = [];
+  function UIList(selector, opts) {
+    this.elList = $(selector);
+    this.existing = [];
 
-  opts = massrel.helpers.extend(opts || {}, {
-    limit: 10,
-    renderer: UIList.defaultRenderer,
-    beforeInsert: UIList.noop,
-    afterInsert: UIList.noop,
-    beforeRemove: UIList.noop,
-    afterRemove: UIList.noop
-  });
+    opts = massrel.helpers.extend(opts || {}, {
+      limit: 10,
+      renderer: UIList.defaultRenderer,
+      beforeInsert: UIList.noop,
+      afterInsert: UIList.noop,
+      beforeRemove: UIList.noop,
+      afterRemove: UIList.noop
+    });
 
-  massrel.helpers.extend(this, opts);
-}
-
-UIList.prototype.insert_ = function(where, item) {
-  var html = this.renderer(item) || '';
-  var elem = $('<div />').html(html).children();
-
-  while(this.existing.length >= this.limit) {
-    this.remove(this.existing.shift());
+    massrel.helpers.extend(this, opts);
   }
 
-  this.beforeInsert(elem);
-  this.elList[where](elem);
-  this.afterInsert(elem);
+  UIList.prototype.insert_ = function(where, item) {
+    var html = this.renderer(item) || '';
+    var elem = $('<div />').html(html).children();
 
-  this.existing.push(elem);
+    while(this.existing.length >= this.limit) {
+      this.remove(this.existing.shift());
+    }
 
-  return this;
-};
+    this.beforeInsert(elem);
+    this.elList[where](elem);
+    this.afterInsert(elem);
 
-UIList.prototype.append = function(item) {
-  return this.insert_('append', item);
-};
+    this.existing.push(elem);
 
-UIList.prototype.prepend = function(item) {
-  return this.insert_('prepend', item);
-};
+    return this;
+  };
 
-UIList.prototype.remove = function(elem) {
-  this.beforeRemove(elem);
-  elem.remove();
-  this.afterRemove(elem);
-};
+  UIList.prototype.append = function(item) {
+    return this.insert_('append', item);
+  };
 
-UIList.prototype.itemRenderer = function(renderer) {
-  if(typeof(renderer) === 'function') {
-    this.renderer = renderer;
+  UIList.prototype.prepend = function(item) {
+    return this.insert_('prepend', item);
+  };
+
+  UIList.prototype.remove = function(elem) {
+    this.beforeRemove(elem);
+    elem.remove();
+    this.afterRemove(elem);
+  };
+
+  UIList.prototype.itemRenderer = function(renderer) {
+    if(typeof(renderer) === 'function') {
+      this.renderer = renderer;
+    }
+    return this;
+  };
+
+  UIList.defaultRenderer = function(item) {
+    return item.toString();
+  };
+  UIList.noop = function() {};
+
+
+  if(typeof(window.massrel) === 'undefined') {
+    window.massrel = {};
   }
-  return this;
-};
-
-UIList.defaultRenderer = function(item) {
-  return item.toString();
-};
-UIList.noop = function() {};
-
-
-if(typeof(window.massrel) === 'undefined') {
-  window.massrel = {};
-}
-massrel.UIList = UIList;
+  massrel.UIList = UIList;
 
 })();
