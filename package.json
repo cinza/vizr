@@ -1,7 +1,0 @@
-{
-  "name": "vizr",
-  "version": "0.2.0",
-  "dependencies": {
-    "jshint": "0.7.x"
-  }
-}
