@@ -1,6 +1,8 @@
 NODE_VERSION = "0.6.18"
 NODE_VERSION_FILTER = /v0\.6.*/
 
+JSHINTRC_FILE = ".jshintrc"
+
 task :build, :target, :options do |t, args|
   target = args[:target]
   options = args[:options]
@@ -97,11 +99,25 @@ task :process_files, :target, :options do |t, args|
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
 
+  # Check if project is jshint-enabled
+  found_jshint_file = File.exists?(File.join(target, JSHINTRC_FILE))
+  run_jshint = jslint && found_jshint_file
+  run_jslint = jslint && !found_jshint_file
+
+  if run_jshint
+    if !node?
+      raise "This project requires Node.js #{NODE_VERSION} to build, please update Vagrant and run from there."
+    end
+
+    puts "Running jshint..."
+    sh "(cd #{tmp}; jshint --show-non-errors .)"
+  end
+
   if !minify
     jopts << ' -m none'
   end
 
-  if !jslint
+  if !run_jslint
     jopts << ' -s'
   end
 
@@ -130,8 +146,8 @@ def node?
     io.read
   }
 
-  if !$?
-    raise "This project requires Node.js #{NODE_VERSION} to build, please update Vagrant and run from there."
+  if !$?.exitstatus.zero?
+    return false
   end
 
   # Is an acceptable version?
@@ -141,8 +157,10 @@ def node?
   }
 
   if !(version =~ NODE_VERSION_FILTER)
-    raise "This project requires Node.js #{NODE_VERSION} to build, please update Vagrant and run from there."
+    return false
   end
+
+  return true
 end
 
 task :create_build_directory, :target do |t, args|
