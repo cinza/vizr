@@ -101,8 +101,12 @@ task :process_files, :target, :options do |t, args|
 
   # Check if project is jshint-enabled
   found_jshint_file = File.exists?(File.join(target, JSHINTRC_FILE))
+
+  # If .jshintrc, use jshint and uglify, else use jslint and yui via juicer
   run_jshint = jslint && found_jshint_file
   run_jslint = jslint && !found_jshint_file
+  run_uglify_js = minify && found_jshint_file
+  run_yui_js = minify && !found_jshint_file
 
   if run_jshint
     setup_jshint
@@ -111,7 +115,7 @@ task :process_files, :target, :options do |t, args|
     sh "(cd #{tmp}; jshint .)"
   end
 
-  if !minify
+  if !run_yui_js
     jopts << ' -m none'
   end
 
@@ -133,11 +137,31 @@ task :process_files, :target, :options do |t, args|
       sh "juicer merge -i #{jopts} #{item}"
       mv(item.gsub('.js', '.min.js'), item, :force => true)
     end
+
+    if run_uglify_js
+      setup_uglify_js
+
+      Dir.glob(File.join(tmp, "js", "*.js")) do |item|
+        puts "Running uglify-js on #{item}..."
+        sh "uglifyjs #{item} > #{item}.min"
+        mv(item.gsub('.js', '.js.min'), item, :force => true)
+      end
+    end
   end
 
   puts "Applying env.yaml settings..."
   Dir[File.join(tmp, "*.hbs")].each do |hbs|
     sh "ruby #{File.join(VIZR_ROOT, "lib", "parse_hbs.rb")} \"#{hbs}\" #{File.join(target, "env.yaml")} > #{File.join(tmp, File.basename(hbs, ".hbs"))}"
+  end
+end
+
+def setup_uglify_js
+  if !node?
+    node_missing
+  end
+
+  if !which?("uglifyjs")
+    sh "npm install -g uglify-js"
   end
 end
 
