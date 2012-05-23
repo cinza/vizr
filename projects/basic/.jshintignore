@@ -1,4 +1,4 @@
 build
-tmpbuild
 dev/js/vendor
+tmpbuild/js/vendor
 .git
