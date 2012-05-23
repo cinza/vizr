@@ -6,6 +6,7 @@
  * @depends massrel.js
  * @depends handlebars_helpers.js
  * @depends uilist.js
+ * @depends analytics.js
  */
 
 /* Compile Template */

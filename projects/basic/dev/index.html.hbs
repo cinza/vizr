@@ -22,11 +22,13 @@
   <script src="./js/modernizr.js"></script>
 
   {{#if ga.enabled}}
-  <script type="text/javascript">
+  <script>
+    var _gaq_b = false;
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', '{{ga.code}}']);
     _gaq.push(['_trackPageview']);
     {{#if ga.alt_code}}
+    _gaq_b = true;
     _gaq.push(['b._setAccount', '{{ga.alt_code}}']);
     _gaq.push(['b._trackPageview']);
     {{/if}}
@@ -49,9 +51,16 @@
 </script>
 
 <!-- SCRIPTS -->
+<script>
+  window.twttr = (function (d,s,id) {
+    var t, js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return; js=d.createElement(s); js.id=id;
+    js.src="//platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs);
+    return window.twttr || (t = { _e: [], ready: function(f){ t._e.push(f) } });
+  }(document, "script", "twitter-wjs"));
+</script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="./js/jquery.js"><\/script>')</script>
 <script src="./js/main.js"></script>
-
 </body>
 </html>
