@@ -105,9 +105,7 @@ task :process_files, :target, :options do |t, args|
   run_jslint = jslint && !found_jshint_file
 
   if run_jshint
-    if !node?
-      node_missing
-    end
+    setup_jshint
 
     puts "Running jshint..."
     sh "(cd #{tmp}; jshint .)"
@@ -143,23 +141,41 @@ task :process_files, :target, :options do |t, args|
   end
 end
 
+def setup_jshint
+  if !node?
+    node_missing
+  end
+
+  if !which?("jshint")
+    sh "npm install -g jshint"
+  end
+end
+
 def node?
   # First test if node exists at all
-  IO.popen("which node") { |io|
-    io.read
-  }
-
-  if !$?.exitstatus.zero?
+  if !which?("node")
     return false
   end
 
-  # Is an acceptable version?
+  # Is it an acceptable version?
   version = ""
   IO.popen("node --version") { |io|
     version = io.read
   }
 
   if !(version =~ NODE_VERSION_FILTER)
+    return false
+  end
+
+  return true
+end
+
+def which?(program)
+  IO.popen("which #{program}") { |io|
+    io.read
+  }
+
+  if !$?.exitstatus.zero?
     return false
   end
 
