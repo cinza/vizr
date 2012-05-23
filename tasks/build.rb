@@ -106,11 +106,11 @@ task :process_files, :target, :options do |t, args|
 
   if run_jshint
     if !node?
-      raise "This project requires Node.js #{NODE_VERSION} to build, please update Vagrant and run from there."
+      node_missing
     end
 
     puts "Running jshint..."
-    sh "(cd #{tmp}; jshint --show-non-errors .)"
+    sh "(cd #{tmp}; jshint .)"
   end
 
   if !minify
@@ -122,6 +122,7 @@ task :process_files, :target, :options do |t, args|
   end
 
   if File.exist?(File.join(tmp, "css"))
+    puts "Running juicer on CSS..."
     Dir.glob(File.join(tmp, "css", "*.css")) do |item|
       sh "juicer merge -i #{jopts} #{item}"
       mv(item.gsub('.css', '.min.css'), item, :force => true)
@@ -129,12 +130,14 @@ task :process_files, :target, :options do |t, args|
   end
 
   if File.exist?(File.join(tmp, "js"))
+    puts "Running juicer on JS..."
     Dir.glob(File.join(tmp, "js", "*.js")) do |item|
       sh "juicer merge -i #{jopts} #{item}"
       mv(item.gsub('.js', '.min.js'), item, :force => true)
     end
   end
 
+  puts "Applying env.yaml settings..."
   Dir[File.join(tmp, "*.hbs")].each do |hbs|
     sh "ruby #{File.join(VIZR_ROOT, "lib", "parse_hbs.rb")} \"#{hbs}\" #{File.join(target, "env.yaml")} > #{File.join(tmp, File.basename(hbs, ".hbs"))}"
   end
@@ -161,6 +164,20 @@ def node?
   end
 
   return true
+end
+
+def node_missing
+  puts "############################### ERROR ###############################"
+  puts "# This project requires Node.js #{NODE_VERSION} to build.                    #"
+  puts "#                                                                   #"
+  puts "# Option 1: Use Vagrant and run from there: http://git.io/q0xYy     #"
+  puts "# Option 2: Install node in three easy steps:                       #"
+  puts "#   $ wget -O ~/bin/nave http://git.io/q3EXrg                       #"
+  puts "#     (assumes ~/bin in PATH)                                       #"
+  puts "#   $ chmod a+x ~/bin/nave                                          #"
+  puts "#   $ nave usemain #{NODE_VERSION}                                           #"
+  puts "#####################################################################"
+  exit
 end
 
 task :create_build_directory, :target do |t, args|
