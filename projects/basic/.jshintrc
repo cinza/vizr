@@ -1,5 +1,12 @@
 {
   "asi": true,
+  "curly": true,
+  "immed": true,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
 
-  "indent": 2
+  "browser": true,
+  "devel": true,
+  "jquery": true
 }
