@@ -185,7 +185,7 @@ def setup_requirejs
   end
 
   if !which?("r.js")
-    sh "npm install -g requirejs"
+    sh "npm install -g requirejs@2.0.0"
   end
 end
 
@@ -195,7 +195,7 @@ def setup_uglify_js
   end
 
   if !which?("uglifyjs")
-    sh "npm install -g uglify-js"
+    sh "npm install -g uglify-js@1.2.6"
   end
 end
 
@@ -205,7 +205,7 @@ def setup_jshint
   end
 
   if !which?("jshint")
-    sh "npm install -g jshint"
+    sh "npm install -g jshint@0.7.1"
   end
 end
 
