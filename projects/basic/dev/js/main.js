@@ -1,35 +1,36 @@
-/**
- * @depends vendor/handlebars.js
- * @depends prettydate.js
- * @depends vendor/twitter-text.js
- * @depends vendor/massrel.js
- * @depends handlebars_helpers.js
- * @depends uilist.js
- */
+define([
+  'vendor/jquery',
+  'vendor/massrel',
+  'vendor/handlebars',
+  'vendor/twitter-text',
+  'prettydate',
+  'handlebars_helpers',
+  'uilist'
+], function($, massrel, Handlebars) {
 
-/* Compile Template */
-function templateFromScript(selector) {
-  return Handlebars.compile($(selector).html());
-}
+  /* Compile Template */
+  function templateFromScript(selector) {
+    return Handlebars.compile($(selector).html());
+  }
 
-function app() {
-  massrel.handlebars.register(Handlebars);
+  function app() {
+    var elStream = $('#stream');
+    var uiStream = new massrel.UIList(elStream, {
+      limit: 6,
+      renderer: templateFromScript('#tmpl-status-twitter')
+    });
+    var stream = new massrel.Stream(elStream.attr('data-stream-name'));
 
-  var elStream = $('#stream');
-  var uiStream = new massrel.UIList(elStream, {
-    limit: 6,
-    renderer: templateFromScript('#tmpl-status-twitter')
-  });
-  var stream = new massrel.Stream(elStream.attr('data-stream-name'));
+    stream.poller({
+      frequency: 15
+    }).each(function(status) {
+      var context = massrel.Context.create(status);
+      if(context.known) {
+        uiStream.prepend(context);
+      }
+    }).start();
+  }
 
-  stream.poller({
-    frequency: 15
-  }).each(function(status) {
-    var context = massrel.Context.create(status);
-    if(context.known) {
-      uiStream.prepend(context);
-    }
-  }).start();
-}
+  $(document).ready(app);
 
-jQuery(document).ready(app);
+});

@@ -63,6 +63,7 @@ COMMANDS[:build] = Proc.new do |args|
   options = {
     :minify => true,
     :jslint => false,
+    :merge => true,
     :make_cache_path_file => false,
     :watch => false
   }
@@ -77,9 +78,14 @@ COMMANDS[:build] = Proc.new do |args|
       options[:jslint] = jslint
     end
 
-    opts.on("--dev", "Development build") do
+    opts.on("--[no-]merge", "Merge JS and CSS files (#{options[:merge] ? "enabled" : "disabled"} by default)") do |merge|
+      options[:merge] = merge
+    end
+
+    opts.on("--dev", "Development build (no minify, lint, or merge)") do
       options[:minify] = false
       options[:jslint] = false
+      options[:merge] = false
     end
 
     opts.on("--cachepath", "Generate file to look up paths by original names") do

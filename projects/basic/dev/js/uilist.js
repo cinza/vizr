@@ -1,5 +1,4 @@
-// requires jQuery
-(function() {
+define(['vendor/jquery', 'vendor/massrel'], function($, massrel) {
 
   function UIList(selector, opts) {
     this.elList = $(selector);
@@ -66,4 +65,4 @@
   }
   massrel.UIList = UIList;
 
-})();
+});

@@ -1,7 +1,12 @@
 NODE_VERSION = "0.6.18"
 NODE_VERSION_FILTER = /v0\.6.*/
 
+JS_DIR = "js"
+CONFIG_DIR = "config"
+VENDOR_DIR = "vendor"
+
 JSHINTRC_FILE = ".jshintrc"
+REQUIRE_JS_BUILD_FILE = "require.build.js"
 
 task :build, :target, :options do |t, args|
   target = args[:target]
@@ -93,6 +98,7 @@ task :process_files, :target, :options do |t, args|
   options = args[:options]
   minify = options[:minify]
   jslint = options[:jslint]
+  merge = options[:merge]
   jopts = ''
 
   dev = File.expand_path(DEV_PATH, target)
@@ -107,6 +113,13 @@ task :process_files, :target, :options do |t, args|
   run_jslint = jslint && !found_jshint_file
   run_uglify_js = minify && found_jshint_file
   run_yui_js = minify && !found_jshint_file
+
+  # Check if project uses require.js
+  requirejs_build_file = File.join(tmp, JS_DIR, CONFIG_DIR, REQUIRE_JS_BUILD_FILE)
+  found_requirejs_build_file = File.exists?(requirejs_build_file)
+
+  run_juicer_merge = merge && !found_requirejs_build_file
+  run_requirejs_optimizer = merge && found_requirejs_build_file
 
   if run_jshint
     setup_jshint
@@ -124,18 +137,29 @@ task :process_files, :target, :options do |t, args|
   end
 
   if File.exist?(File.join(tmp, "css"))
-    puts "Running juicer on CSS..."
-    Dir.glob(File.join(tmp, "css", "*.css")) do |item|
-      sh "juicer merge -i #{jopts} #{item}"
-      mv(item.gsub('.css', '.min.css'), item, :force => true)
+    if run_juicer_merge
+      puts "Running juicer on CSS..."
+      Dir.glob(File.join(tmp, "css", "*.css")) do |item|
+        sh "juicer merge -i #{jopts} #{item}"
+        mv(item.gsub('.css', '.min.css'), item, :force => true)
+      end
     end
   end
 
   if File.exist?(File.join(tmp, "js"))
-    puts "Running juicer on JS..."
-    Dir.glob(File.join(tmp, "js", "*.js")) do |item|
-      sh "juicer merge -i #{jopts} #{item}"
-      mv(item.gsub('.js', '.min.js'), item, :force => true)
+    if run_juicer_merge
+      puts "Running juicer on JS..."
+      Dir.glob(File.join(tmp, "js", "*.js")) do |item|
+        sh "juicer merge -i #{jopts} #{item}"
+        mv(item.gsub('.js', '.min.js'), item, :force => true)
+      end
+    end
+
+    if run_requirejs_optimizer
+      setup_requirejs
+
+      puts "Running RequireJS optimizer on JS & CSS..."
+      sh "r.js -o #{requirejs_build_file}"
     end
 
     if run_uglify_js
@@ -152,6 +176,16 @@ task :process_files, :target, :options do |t, args|
   puts "Applying env.yaml settings..."
   Dir[File.join(tmp, "*.hbs")].each do |hbs|
     sh "ruby #{File.join(VIZR_ROOT, "lib", "parse_hbs.rb")} \"#{hbs}\" #{File.join(target, "env.yaml")} > #{File.join(tmp, File.basename(hbs, ".hbs"))}"
+  end
+end
+
+def setup_requirejs
+  if !node?
+    node_missing
+  end
+
+  if !which?("r.js")
+    sh "npm install -g requirejs"
   end
 end
 

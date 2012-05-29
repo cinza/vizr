@@ -1,0 +1,14 @@
+require({
+  baseUrl: 'js',
+  paths: {
+    'vendor/jquery': '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min'
+  },
+  shim: {
+    'vendor/handlebars': {
+      exports: 'Handlebars'
+    },
+    'vendor/jquery': {
+      exports: 'jQuery'
+    }
+  },
+}, ['main']);
