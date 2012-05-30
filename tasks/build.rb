@@ -118,7 +118,7 @@ task :process_files, :target, :options do |t, args|
   requirejs_build_file = File.join(tmp, JS_DIR, CONFIG_DIR, REQUIRE_JS_BUILD_FILE)
   found_requirejs_build_file = File.exists?(requirejs_build_file)
 
-  run_juicer_merge = merge && !found_requirejs_build_file
+  run_juicer_merge = !found_requirejs_build_file
   run_requirejs_optimizer = merge && found_requirejs_build_file
 
   if run_jshint
