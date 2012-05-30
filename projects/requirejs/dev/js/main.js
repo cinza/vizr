@@ -5,7 +5,8 @@ define([
   'vendor/twitter-text',
   'prettydate',
   'handlebars_helpers',
-  'uilist'
+  'uilist',
+  'analytics'
 ], function($, massrel, Handlebars) {
 
   /* Compile Template */
