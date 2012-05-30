@@ -38,12 +38,12 @@ COMMANDS = {}
 
 COMMANDS[:create] = Proc.new do |args|
   options = {
-    :type => :basic
+    :type => :requirejs
   }
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr create [args] <projectpath>"
 
-    opts.on("-t", "--type TYPE", [:basic], "Predefined project type (basic only offered now)") do |type|
+    opts.on("-t", "--type TYPE", [:basic, :requirejs], "Predefined project type (defaults to #{options[:type]})") do |type|
       options[:type] = type.to_sym
     end
 

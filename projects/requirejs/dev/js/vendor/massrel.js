@@ -1,5 +1,5 @@
   /*!
-   * massrel/stream-js 0.9.8
+   * massrel/stream-js 0.9.4
    *
    * Copyright 2012 Mass Relevance
    *
@@ -18,7 +18,9 @@
 /*jslint strict: false, plusplus: false */
 /*global setTimeout: false */
 
-var requirejs, require, define;
+// BEGIN MR PATCH: Expose top-level vars in this function's scope
+//var requirejs, require, define;
+// END MR PATCH
 (function (undef) {
 
     var defined = {},
@@ -288,13 +290,14 @@ var requirejs, require, define;
     };
 }());
 
-define("almond.js", function(){});
+// BEGIN MR PATCH: This breaks the optimizer
+//define("almond.js", function(){});
+// END MR PATCH
 
 define('globals',{
   host: 'tweetriver.com'
 , timeout: 10e3
 , protocol: document.location.protocol === 'https:' ? 'https' : 'http'
-, min_poll_interval: 5e3
 });
 
 define('helpers',['globals'], function(globals) {
@@ -480,71 +483,10 @@ define('helpers',['globals'], function(globals) {
     return raw;
   };
 
-  exports.poll_interval = function(interval) {
-    var min = globals.min_poll_interval;
-    return Math.max(interval || min, min);
-  };
-
   return exports;
 });
 
-define('meta_poller',['helpers'], function(helpers) {
-
-  function MetaPoller(object, opts) {
-    var self = this
-      , fetch = function() {
-          if(enabled) {
-            object.meta(self.opts, function(data) { // success
-              if(enabled) { // being very thorough in making sure to stop polling when told
-                helpers.step_through(data, self._listeners, self);
-
-                if(enabled) { // poller can be stopped in any of the above iterators
-                  again();
-                }
-              }
-            }, function() { // error
-              again();
-            });
-          }
-        }
-      , again = function() {
-          tmo = setTimeout(fetch, helpers.poll_interval(self.opts.frequency));
-        }
-      , enabled = false
-      , tmo;
-
-    this._listeners = [];
-
-    this.opts = opts || {};
-
-    this.opts.frequency = (this.opts.frequency || 30) * 1000;
-
-    this.start = function() {
-      if(!enabled) { // guard against multiple pollers
-        enabled = true;
-        fetch();
-      }
-      return this;
-    };
-    this.stop = function() {
-      clearTimeout(tmo);
-      enabled = false;
-      return this;
-    };
-  }
-
-  MetaPoller.prototype.data = function(fn) {
-    this._listeners.push(fn);
-    return this;
-  };
-  // alias #each
-  MetaPoller.prototype.each = MetaPoller.prototype.data;
-
-  return MetaPoller;
-});
-
-
-define('account',['helpers', 'meta_poller'], function(helpers, MetaPoller) {
+define('account',['helpers'], function(helpers) {
   var _enc = encodeURIComponent;
 
   function Account(user) {
@@ -588,15 +530,63 @@ define('account',['helpers', 'meta_poller'], function(helpers, MetaPoller) {
 
     return params;
   };
-  Account.prototype.metaPoller = function(opts) {
-    return new MetaPoller(this, opts);
-  };
   Account.prototype.toString = function() {
     return this.user;
   };
 
   return Account;
 });
+
+define('meta_poller',['helpers'], function(helpers) {
+
+  function MetaPoller(stream, opts) {
+    var self = this
+      , fetch = function() {
+          stream.meta({
+            disregard: self.disregard
+          }, function(data) { // success
+            helpers.step_through(data, self._listeners, self);
+            again();
+          }, function() { // error
+            again();
+          });
+        }
+      , again = function() {
+          tmo = setTimeout(fetch, self.frequency);
+        }
+      , enabled = false
+      , tmo;
+
+    this._listeners = [];
+
+    opts = opts || {};
+    this.disregard = opts.diregard || null;
+    this.frequency = (opts.frequency || 30) * 1000;
+
+    this.start = function() {
+      if(!enabled) { // guard against multiple pollers
+        enabled = true;
+        fetch();
+      }
+      return this;
+    };
+    this.stop = function() {
+      clearTimeout(tmo);
+      enabled = false;
+      return this;
+    };
+  }
+
+  MetaPoller.prototype.data = function(fn) {
+    this._listeners.push(fn);
+    return this;
+  };
+  // alias #each
+  MetaPoller.prototype.each = MetaPoller.prototype.data;
+
+  return MetaPoller;
+});
+
 
 define('poller_queue',['helpers'], function(helpers) {
 
@@ -707,7 +697,6 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
     this.start_id = opts.start_id || null;
     this.replies = !!opts.replies;
     this.geo_hint = !!opts.geo_hint;
-    this.keywords = opts.keywords || null;
     this.frequency = (opts.frequency || 30) * 1000;
     this.catch_up = opts.catch_up !== undefined ? opts.catch_up : false;
     this.enabled = false;
@@ -747,14 +736,13 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
       if(!self.enabled || instance_id !== self.alive_instance) { return; }
 
       self.stream.load(self.params({
-        keywords: self.keywords
-      , since_id: self.since_id
+        since_id: self.since_id
       }), function(statuses) {
         self.alive = true;
         self.consecutive_errors = 0;
         var catch_up = self.catch_up && statuses.length === self.limit;
 
-        if(statuses && statuses.length > 0) {
+        if(statuses.length > 0) {
           self.since_id = statuses[0].entity_id;
 
           if(!self.start_id) { // grab last item ID if it has not been set
@@ -769,7 +757,7 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
           // invoke all enumerators on this poller
           helpers.step_through(statuses, self._enumerators, self);
         }
-        self._t = setTimeout(poll, catch_up ? 0 : helpers.poll_interval(self.frequency));
+        self._t = setTimeout(poll, catch_up ? 0 : self.frequency);
       }, function() {
         self.consecutive_errors += 1;
         self.poke();
@@ -821,8 +809,7 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
     return helpers.extend({
       limit: this.limit,
       replies: this.replies,
-      geo_hint: this.geo_hint,
-      keywords: this.keywords
+      geo_hint: this.geo_hint
     }, opts || {});
   };
 
@@ -874,9 +861,6 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
     if(opts.geo_hint) {
       params.push(['geo_hint', '1']);
     }
-    if(opts.keywords) {
-      params.push(['keywords', opts.keywords]);
-    }
     return params;
   };
   Stream.prototype.each = function(fn) {
@@ -913,21 +897,6 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
     if(opts.disregard) {
       params.push(['disregard', opts.disregard]);
     }
-    if(opts.num_minutes) {
-      params.push(['num_minutes', opts.num_minutes]);
-    }
-    if(opts.num_hours) {
-      params.push(['num_hours', opts.num_hours]);
-    }
-    if(opts.num_days) {
-      params.push(['num_days', opts.num_days]);
-    }
-    if(opts.top_periods) {
-      params.push(['top_periods', opts.top_periods]);
-    }
-    if(opts.finish) {
-      params.push(['finish', opts.finish]);
-    }
     return params;
   };
   Stream.prototype.metaPoller = function(opts) {
@@ -948,7 +917,7 @@ define('context',['helpers'], function(helpers) {
       message: false
     };
     this.known = false;
-    this.intents = true;
+    this.intents = false;
   }
 
   Context.create = function(status, opts) {
@@ -959,8 +928,6 @@ define('context',['helpers'], function(helpers) {
       intents: true,
       retweeted_by: true
     });
-
-    context.intents = opts.intents;
 
     // determine status source
     if(status.id_str && status.text && status.entities) {
@@ -989,72 +956,9 @@ define('context',['helpers'], function(helpers) {
   return Context;
 });
 
-define('intents',['helpers'], function(helpers) {
-
-  var intents = {
-    base_url: 'https://twitter.com/intent/',
-    params: {
-      'text'       : '(string): default text, for tweet/reply',
-      'url'        : '(string): prefill url, for tweet/reply',
-      'hashtags'   : '(string): hashtag (or list with ,) without #, for tweet/reply',
-      'related'    : '(string): screen name (or list with ,) without @, available for all',
-      'in_reply_to': '(number): tweet id, only for reply',
-      'via'        : '(string): screen name without @, tweet/reply',
-      'tweet_id'   : '(number): tweet id, for retweet and favorite',
-      'screen_name': '(string): only for user/profile',
-      'user_id'    : '(number): only for user/profile'
-    }
-  };
-
-  intents.url = function(type, options) {
-    options = options || {};
-    var params = [];
-    for(var k in options) {
-      params.push([k, options[k]]);
-    }
-
-    return intents.base_url+encodeURIComponent(type)+'?'+helpers.to_qs(params);
-  };
-
-  intents.tweet = function(options) {
-    return intents.url('tweet', options);
-  };
-
-  intents.reply = function(in_reply_to, options) {
-    options = options || {};
-    options.in_reply_to = in_reply_to;
-    return intents.tweet(options);
-  };
-
-  intents.retweet = function(tweet_id, options) {
-    options = options || {};
-    options.tweet_id = tweet_id;
-    return intents.url('retweet', options);
-  };
-
-  intents.favorite = function(tweet_id, options) {
-    options = options || {};
-    options.tweet_id = tweet_id;
-    return intents.url('favorite', options);
-  };
-
-  intents.user = function(screen_name_or_id, options) {
-    options = options || {};
-    if(!isNaN(parseInt(screen_name_or_id, 10))) {
-      options.user_id = screen_name_or_id;
-    }
-    else {
-      options.screen_name = screen_name_or_id;
-    }
-    return intents.url('user', options);
-  };
-  // alias
-  intents.profile = intents.user;
-
-  return intents;
-});
-
-define('massrel', [
+// BEGIN MR PATCH: Add vendor dir prefix
+define('vendor/massrel', [
+// END MR PATCH
          'globals'
        , 'helpers'
        , 'stream'
@@ -1063,7 +967,6 @@ define('massrel', [
        , 'meta_poller'
        , 'poller_queue'
        , 'context'
-       , 'intents'
        ], function(
          globals
        , helpers
@@ -1073,7 +976,6 @@ define('massrel', [
        , MetaPoller
        , PollerQueue
        , Context
-       , intents
        ) {
 
   var massrel = window.massrel;
@@ -1089,17 +991,19 @@ define('massrel', [
   massrel.PollerQueue = PollerQueue;
   massrel.Context = Context;
   massrel.helpers = helpers;
-  massrel.intents = intents;
 
   // require/AMD methods
   massrel.define = define;
   massrel.require = require;
   massrel.requirejs = requirejs;
 
+// BEGIN MR PATCH: Don't call define within a define
   // define API for AMD
-  if(typeof(window.define) === 'function' && typeof(window.define.amd) !== 'undefined') {
-    window.define(massrel);
-  }
+  //if(typeof(window.define) === 'function' && typeof(window.define.amd) !== 'undefined') {
+    //window.define(massrel);
+  //}
+  return massrel;
+// END MR PATCH
 
 });
 }());
