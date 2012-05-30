@@ -18,7 +18,9 @@
 /*jslint strict: false, plusplus: false */
 /*global setTimeout: false */
 
+// BEGIN MR PATCH: Expose top-level vars in this function's scope
 //var requirejs, require, define;
+// END MR PATCH
 (function (undef) {
 
     var defined = {},
