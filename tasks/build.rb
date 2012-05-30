@@ -241,16 +241,9 @@ def which?(program)
 end
 
 def node_missing
-  puts "############################### ERROR ###############################"
-  puts "# This project requires Node.js #{NODE_VERSION} to build.                    #"
-  puts "#                                                                   #"
-  puts "# Option 1: Use Vagrant and run from there: http://git.io/q0xYy     #"
-  puts "# Option 2: Install node in three easy steps:                       #"
-  puts "#   $ wget -O ~/bin/nave http://git.io/q3EXrg                       #"
-  puts "#     (assumes ~/bin in PATH)                                       #"
-  puts "#   $ chmod a+x ~/bin/nave                                          #"
-  puts "#   $ nave usemain #{NODE_VERSION}                                           #"
-  puts "#####################################################################"
+  message("nodejs_dependency", {
+    :node_version => NODE_VERSION
+  })
   exit
 end
 
