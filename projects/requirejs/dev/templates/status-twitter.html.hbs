@@ -1,11 +1,11 @@
 <div class="massrel-status massrel-status-twitter" data-massrel-network="twt" data-massrel-id="{{status.id_str}}">
-  <a href="https://twitter.com/{{status.user.screen_name}}" class="massrel-avatar"><img src="{{status.user.profile_image_url}}" alt="" /></a>
+  <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-avatar"><img src="{{status.user.profile_image_url}}" alt="" /></a>
   <div class="massrel-content">
     <div class="massrel-author">
       {{#if retweet}}
-      <div class="massrel-retweeted-by"><img src="./img/retweet_hover.png" alt="retweeted" /> by <a href="https://twitter.com/{{retweeted_by_user.screen_name}}" class="massrel-retweeted-by-user">{{retweeted_by_user.screen_name}}</a></div>
+      <div class="massrel-retweeted-by"><img src="./img/retweet_hover.png" alt="retweeted" /> by <a href="https://twitter.com/intent/user?screen_name={{retweeted_by_user.screen_name}}" class="massrel-retweeted-by-user">{{retweeted_by_user.screen_name}}</a></div>
       {{/if}}
-      <a href="https://twitter.com/{{status.user.screen_name}}" class="massrel-screen-name">{{status.user.screen_name}}</a>
+      <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-screen-name">{{status.user.screen_name}}</a>
       <span class="massrel-real-name">{{status.user.name}}</span>
     </div>
     <div class="massrel-text">{{{autoLink status.text}}}</div>
