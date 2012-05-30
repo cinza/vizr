@@ -1,9 +1,8 @@
-/*jslint browser: true, sloppy: true, white: true, nomen: false, plusplus: true, maxerr: 50, indent: 4 */
 /**
- * @depends handlebars.js
+ * @depends vendor/handlebars.js
  * @depends prettydate.js
- * @depends twitter-text.js
- * @depends massrel.js
+ * @depends vendor/twitter-text.js
+ * @depends vendor/massrel.js
  * @depends handlebars_helpers.js
  * @depends uilist.js
  * @depends analytics.js
@@ -12,7 +11,7 @@
 /* Compile Template */
 function templateFromScript(selector) {
   return Handlebars.compile($(selector).html());
-};
+}
 
 function app() {
   massrel.handlebars.register(Handlebars);

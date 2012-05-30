@@ -1,3 +1,13 @@
+NODE_VERSION = "0.6.18"
+NODE_VERSION_FILTER = /v0\.6.*/
+
+JS_DIR = "js"
+CONFIG_DIR = "config"
+VENDOR_DIR = "vendor"
+
+JSHINTRC_FILE = ".jshintrc"
+REQUIRE_JS_BUILD_FILE = "require.build.js"
+
 task :build, :target, :options do |t, args|
   target = args[:target]
   options = args[:options]
@@ -88,37 +98,153 @@ task :process_files, :target, :options do |t, args|
   options = args[:options]
   minify = options[:minify]
   jslint = options[:jslint]
+  merge = options[:merge]
   jopts = ''
 
   dev = File.expand_path(DEV_PATH, target)
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
 
-  if !minify
+  # Check if project is jshint-enabled
+  found_jshint_file = File.exists?(File.join(target, JSHINTRC_FILE))
+
+  # If .jshintrc, use jshint and uglify, else use jslint and yui via juicer
+  run_jshint = jslint && found_jshint_file
+  run_jslint = jslint && !found_jshint_file
+  run_uglify_js = minify && found_jshint_file
+  run_yui_js = minify && !found_jshint_file
+
+  # Check if project uses require.js
+  requirejs_build_file = File.join(tmp, JS_DIR, CONFIG_DIR, REQUIRE_JS_BUILD_FILE)
+  found_requirejs_build_file = File.exists?(requirejs_build_file)
+
+  run_juicer_merge = merge && !found_requirejs_build_file
+  run_requirejs_optimizer = merge && found_requirejs_build_file
+
+  if run_jshint
+    setup_jshint
+
+    puts "Running jshint..."
+    sh "(cd #{tmp}; jshint .)"
+  end
+
+  if !run_yui_js
     jopts << ' -m none'
   end
 
-  if !jslint
+  if !run_jslint
     jopts << ' -s'
   end
 
   if File.exist?(File.join(tmp, "css"))
-    Dir.glob(File.join(tmp, "css", "*.css")) do |item|
-      sh "juicer merge -i #{jopts} #{item}"
-      mv(item.gsub('.css', '.min.css'), item, :force => true)
+    if run_juicer_merge
+      puts "Running juicer on CSS..."
+      Dir.glob(File.join(tmp, "css", "*.css")) do |item|
+        sh "juicer merge -i #{jopts} #{item}"
+        mv(item.gsub('.css', '.min.css'), item, :force => true)
+      end
     end
   end
 
   if File.exist?(File.join(tmp, "js"))
-    Dir.glob(File.join(tmp, "js", "*.js")) do |item|
-      sh "juicer merge -i #{jopts} #{item}"
-      mv(item.gsub('.js', '.min.js'), item, :force => true)
+    if run_juicer_merge
+      puts "Running juicer on JS..."
+      Dir.glob(File.join(tmp, "js", "*.js")) do |item|
+        sh "juicer merge -i #{jopts} #{item}"
+        mv(item.gsub('.js', '.min.js'), item, :force => true)
+      end
+    end
+
+    if run_requirejs_optimizer
+      setup_requirejs
+
+      puts "Running RequireJS optimizer on JS & CSS..."
+      sh "r.js -o #{requirejs_build_file}"
+    end
+
+    if run_uglify_js
+      setup_uglify_js
+
+      Dir.glob(File.join(tmp, "js", "*.js")) do |item|
+        puts "Running uglify-js on #{item}..."
+        sh "uglifyjs #{item} > #{item}.min"
+        mv(item.gsub('.js', '.js.min'), item, :force => true)
+      end
     end
   end
 
+  puts "Applying env.yaml settings..."
   Dir[File.join(tmp, "*.hbs")].each do |hbs|
     sh "ruby #{File.join(VIZR_ROOT, "lib", "parse_hbs.rb")} \"#{hbs}\" #{File.join(target, "env.yaml")} > #{File.join(tmp, File.basename(hbs, ".hbs"))}"
   end
+end
+
+def setup_requirejs
+  if !node?
+    node_missing
+  end
+
+  if !which?("r.js")
+    sh "npm install -g requirejs@2.0.0"
+  end
+end
+
+def setup_uglify_js
+  if !node?
+    node_missing
+  end
+
+  if !which?("uglifyjs")
+    sh "npm install -g uglify-js@1.2.6"
+  end
+end
+
+def setup_jshint
+  if !node?
+    node_missing
+  end
+
+  if !which?("jshint")
+    sh "npm install -g jshint@0.7.1"
+  end
+end
+
+def node?
+  # First test if node exists at all
+  if !which?("node")
+    return false
+  end
+
+  # Is it an acceptable version?
+  version = ""
+  IO.popen("node --version") { |io|
+    version = io.read
+  }
+
+  if !(version =~ NODE_VERSION_FILTER)
+    return false
+  end
+
+  return true
+end
+
+def which?(program)
+  IO.popen("which #{program}") { |io|
+    io.read
+  }
+
+  if !$?.exitstatus.zero?
+    return false
+  end
+
+  return true
+end
+
+def node_missing
+  message("nodejs_dependency", {
+    :node_version => NODE_VERSION
+  })
+  exit
 end
 
 task :create_build_directory, :target do |t, args|

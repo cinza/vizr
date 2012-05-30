@@ -38,12 +38,12 @@ COMMANDS = {}
 
 COMMANDS[:create] = Proc.new do |args|
   options = {
-    :type => :basic
+    :type => :requirejs
   }
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr create [args] <projectpath>"
 
-    opts.on("-t", "--type TYPE", [:basic], "Predefined project type (basic only offered now)") do |type|
+    opts.on("-t", "--type TYPE", [:basic, :requirejs], "Predefined project type (defaults to #{options[:type]})") do |type|
       options[:type] = type.to_sym
     end
 
@@ -63,6 +63,7 @@ COMMANDS[:build] = Proc.new do |args|
   options = {
     :minify => true,
     :jslint => false,
+    :merge => true,
     :make_cache_path_file => false,
     :watch => false
   }
@@ -77,9 +78,14 @@ COMMANDS[:build] = Proc.new do |args|
       options[:jslint] = jslint
     end
 
-    opts.on("--dev", "Development build") do
+    opts.on("--[no-]merge", "Merge JS and CSS files (#{options[:merge] ? "enabled" : "disabled"} by default)") do |merge|
+      options[:merge] = merge
+    end
+
+    opts.on("--dev", "Development build (no minify, lint, or merge)") do
       options[:minify] = false
       options[:jslint] = false
+      options[:merge] = false
     end
 
     opts.on("--cachepath", "Generate file to look up paths by original names") do
