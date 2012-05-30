@@ -52,4 +52,4 @@
     prepare_context: prepare_context
   };
 
-})();
+}());

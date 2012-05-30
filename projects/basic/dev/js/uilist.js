@@ -66,4 +66,4 @@
   }
   massrel.UIList = UIList;
 
-})();
+}());
