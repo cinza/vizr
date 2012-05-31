@@ -1,14 +1,25 @@
-require({
-  baseUrl: 'js',
-  paths: {
-    'vendor/jquery': '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min'
-  },
-  shim: {
-    'vendor/handlebars': {
-      exports: 'Handlebars'
+(function() {
+
+  var config = {
+    baseUrl: 'js',
+    shim: {
+      'vendor/handlebars': {
+        exports: 'Handlebars'
+      },
+      'vendor/jquery': {
+        exports: 'jQuery'
+      }
     },
-    'vendor/jquery': {
-      exports: 'jQuery'
-    }
-  },
-}, ['main']);
+  };
+
+  if (window.massrel && massrel.cachepath) {
+    config.paths = massrel.cachepath.pathsForRequire();
+  } else {
+    config.paths = {};
+  }
+
+  config.paths['vendor/jquery'] = '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min';
+
+  require(config, ['main']);
+
+}())
