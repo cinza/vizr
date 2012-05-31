@@ -279,9 +279,7 @@ task :move_to_build, :target, :options do |t, args|
   cp(Dir[File.join(tmp, "*.html")], build)
   cp(Dir[File.join(tmp, "*.manifest")], build)
 
-  if options[:make_cache_path_file]
-     sh "ruby #{File.join(VIZR_ROOT, "lib", "cachepath.rb")} \"#{build}\" \"#{File.join(build, "**", "*")}\" > #{File.join(build, "js", "cachepath.js")}"
-  end
+  sh "ruby #{File.join(VIZR_ROOT, "lib", "cachepath.rb")} \"#{build}\" \"#{File.join(build, "**", "*")}\" > #{File.join(build, "js", "cachepath.js")}"
 end
 
 task :clean_up, :target do |t, args|

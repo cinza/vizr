@@ -64,7 +64,6 @@ COMMANDS[:build] = Proc.new do |args|
     :minify => true,
     :jslint => false,
     :merge => true,
-    :make_cache_path_file => false,
     :watch => false
   }
   parser = OptionParser.new do |opts|
@@ -86,10 +85,6 @@ COMMANDS[:build] = Proc.new do |args|
       options[:minify] = false
       options[:jslint] = false
       options[:merge] = false
-    end
-
-    opts.on("--cachepath", "Generate file to look up paths by original names") do
-      options[:make_cache_path_file] = true
     end
 
     opts.on("--watch", "Rebuild project on file changes") do
