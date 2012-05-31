@@ -26,6 +26,18 @@ puts <<-eos
     return path;
   }
   cachepath.paths = #{cached.to_json};
+  cachepath.pathsForRequire = function() {
+    var pathKey;
+    var requirePaths = {};
+    var jsKeyPrefix = /^js!/;
+    var jsDirPrefix = /js\\//;
+    for (pathKey in cachepath.paths) {
+      if (jsKeyPrefix.test(pathKey)) {
+        requirePaths[pathKey.replace(jsKeyPrefix, '').replace(jsDirPrefix, '')] = cachepath.paths[pathKey].replace(jsDirPrefix, '');
+      }
+    }
+    return requirePaths;
+  };
   if(!window.massrel) { window.massrel = {}; }
   window.massrel.cachepath = cachepath;
 }();
