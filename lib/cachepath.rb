@@ -29,11 +29,12 @@ puts <<-eos
   cachepath.pathsForRequire = function() {
     var pathKey;
     var requirePaths = {};
-    var jsKeyPrefix = /^js!/;
-    var jsDirPrefix = /js\\//;
+    var jsKey = /^js!/;
+    var jsDir = /js\\//;
+    var jsExt = /\\.js$/;
     for (pathKey in cachepath.paths) {
-      if (jsKeyPrefix.test(pathKey)) {
-        requirePaths[pathKey.replace(jsKeyPrefix, '').replace(jsDirPrefix, '')] = cachepath.paths[pathKey].replace(jsDirPrefix, '');
+      if (jsKey.test(pathKey)) {
+        requirePaths[pathKey.replace(jsKey, '').replace(jsDir, '')] = cachepath.paths[pathKey].replace(jsDir, '').replace(jsExt, '');
       }
     }
     return requirePaths;
