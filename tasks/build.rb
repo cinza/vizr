@@ -184,7 +184,7 @@ def setup_requirejs
     node_missing
   end
 
-  install_npm_package("requirejs", "2.0.0")
+  install_npm_package("requirejs", "2.0.1")
 end
 
 def setup_uglify_js
