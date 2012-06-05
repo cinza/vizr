@@ -184,9 +184,7 @@ def setup_requirejs
     node_missing
   end
 
-  if !which?("r.js")
-    sh "npm install -g requirejs@2.0.0"
-  end
+  install_npm_package("requirejs", "2.0.0")
 end
 
 def setup_uglify_js
@@ -194,9 +192,7 @@ def setup_uglify_js
     node_missing
   end
 
-  if !which?("uglifyjs")
-    sh "npm install -g uglify-js@1.2.6"
-  end
+  install_npm_package("uglify-js", "1.2.6")
 end
 
 def setup_jshint
@@ -204,9 +200,37 @@ def setup_jshint
     node_missing
   end
 
-  if !which?("jshint")
-    sh "npm install -g jshint@0.7.1"
+  install_npm_package("jshint", "0.7.1")
+end
+
+def install_npm_package(package, version)
+  if !node?
+    node_missing
   end
+
+  root_package_path = ""
+  IO.popen("npm root -g") { |io|
+    root_package_path = io.read[0..-2]
+  }
+
+  search_path = "#{root_package_path}/#{package}:#{package}@#{version}"
+
+  IO.popen("npm ll -g --parseable") { |io|
+    io.each { |line|
+      if line.include?(search_path)
+        return # Found package
+      end
+    }
+  }
+
+  install_prefix = ""
+  if !File.writable?(root_package_path)
+    install_prefix = "sudo "
+  end
+
+  IO.popen("#{install_prefix}npm install -g #{package}@#{version}") { |io|
+    io.read
+  }
 end
 
 def node?
