@@ -293,7 +293,7 @@ task :move_to_build, :target, :options do |t, args|
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
 
-  ["css", "js", "img", "fonts"].each do |folder|
+  ["css", "js", "img", "fonts", "templates"].each do |folder|
     if File.exists?(File.join(tmp, folder))
       mkdir_p(File.join(build, folder))
       cp_r(File.join(tmp, folder), build)
