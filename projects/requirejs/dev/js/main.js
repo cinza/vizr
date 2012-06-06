@@ -1,24 +1,17 @@
 define([
   'vendor/jquery',
   'vendor/massrel',
-  'vendor/handlebars',
+  'hbs!templates/status-twitter.html',
   'vendor/twitter-text',
-  'prettydate',
-  'handlebars_helpers',
   'uilist',
   'analytics'
-], function($, massrel, Handlebars) {
-
-  /* Compile Template */
-  function templateFromScript(selector) {
-    return Handlebars.compile($(selector).html());
-  }
+], function($, massrel, twitterTmpl) {
 
   function app() {
     var elStream = $('#stream');
     var uiStream = new massrel.UIList(elStream, {
       limit: 6,
-      renderer: templateFromScript('#tmpl-status-twitter')
+      renderer: twitterTmpl
     });
     var stream = new massrel.Stream(elStream.attr('data-stream-name'));
 

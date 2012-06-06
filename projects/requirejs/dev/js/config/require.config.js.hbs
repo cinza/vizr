@@ -1,7 +1,9 @@
+// vim: ft=javascript
 (function() {
 
   var config = {
     baseUrl: 'js',
+
     shim: {
       'vendor/handlebars': {
         exports: 'Handlebars'
@@ -10,15 +12,25 @@
         exports: 'jQuery'
       }
     },
+    
+    hbs: {
+      disableI18n: true,
+      helperPathCallback: function(name) {
+        return '/templates/helpers/' + name + '.js';
+      }
+    }
   };
 
+  var paths;
   if (window.massrel && massrel.cachepath) {
-    config.paths = massrel.cachepath.pathsForRequire();
+    paths = config.paths = massrel.cachepath.pathsForRequire();
   } else {
-    config.paths = {};
+    paths = config.paths = {};
   }
 
-  config.paths['vendor/jquery'] = '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min';
+  paths['vendor/jquery'] = '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min';
+  paths.hbs = 'vendor/hbs';
+  paths.templates = '../templates';
 
   require(config, ['main']);
 

@@ -1,6 +1,6 @@
-define(['vendor/handlebars', 'vendor/twitter-text', 'prettydate'], function(Handlebars) {
+define(['vendor/handlebars', 'vendor/twitter-text'], function(Handlebars) {
 
-  Handlebars.registerHelper('autoLink', function(text) {
+  function autoLink(text) {
     var options = {
       target: '_blank',
       usernameIncludeSymbol: true
@@ -25,11 +25,10 @@ define(['vendor/handlebars', 'vendor/twitter-text', 'prettydate'], function(Hand
     }
 
     return twttr.txt.autoLinkUrlsCustom(text, options);
-  });
+  }
 
-  Handlebars.registerHelper('prettyDate', function(date) {
-    date = massrel.helpers.fix_twitter_date(date);
-    return prettyDate(date);
-  });
+  Handlebars.registerHelper('autoLink', autoLink);
 
+  return autoLink;
 });
+
