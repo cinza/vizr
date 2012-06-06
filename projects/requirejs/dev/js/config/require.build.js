@@ -19,9 +19,9 @@
 
   pragmasOnSave: {
     excludeHbsParser: true,
-    excludeHbs: true,
     excludeAfterBuild: true
   },
+  stubModules: ['hbs'],
 
   shim: {
     'vendor/handlebars': {
