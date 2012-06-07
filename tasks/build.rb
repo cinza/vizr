@@ -8,6 +8,8 @@ VENDOR_DIR = "vendor"
 JSHINTRC_FILE = ".jshintrc"
 REQUIRE_JS_BUILD_FILE = "require.build.js"
 
+load File.join(VIZR_ROOT, "lib", "parse_hbs.rb")
+
 task :build, :target, :options do |t, args|
   target = args[:target]
   options = args[:options]
@@ -57,6 +59,7 @@ end
 
 def watched_build(target, options)
   [ :create_working_directory,
+    :output_package_config,
     :process_files,
     :create_build_directory,
     :move_to_build,
@@ -74,6 +77,7 @@ end
 
 def single_build(target, options)
   [ :create_working_directory,
+    :output_package_config,
     :process_files,
     :create_build_directory,
     :move_to_build,
@@ -93,6 +97,7 @@ task :create_working_directory, :target do |t, args|
   cp_r(dev, tmp)
 
   # TODO: Make recursive
+  # Follow package symlinks and flatten them into working dir
   tmp_packages = File.join(tmp, "packages")
   if File.exists?(tmp_packages)
     Dir.glob(File.join(tmp_packages, "*")) { |package|
@@ -102,6 +107,23 @@ task :create_working_directory, :target do |t, args|
       Dir.glob(File.join(package_realpath, "*")) { |file|
         cp_r(file, package)
       }
+    }
+  end
+end
+
+task :output_package_config, :target do |t, args|
+  target = args[:target]
+  dev = File.expand_path(DEV_PATH, target)
+  tmp = File.expand_path(TMP_PATH, target)
+
+  dev_packages = File.join(dev, "packages")
+  if File.exists?(dev_packages)
+    packages = Dir.glob(File.join(dev_packages, "*")).map { |package| 
+      File.basename(package)
+    }
+
+    File.open(File.join(tmp, "js", "config", "require.packages.js"), "w") { |file|
+      file.puts(render(File.join(VIZR_ROOT, "templates", "require.packages.js.hbs"), packages))
     }
   end
 end

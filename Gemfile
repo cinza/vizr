@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem "hbs"
+gem "handlebars"
 gem "juicer"
 gem "json"
 gem "rake"
