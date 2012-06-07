@@ -25,6 +25,7 @@ verbose(false)
 load File.join(VIZR_ROOT, 'tasks/build.rb')
 load File.join(VIZR_ROOT, 'tasks/dist.rb')
 load File.join(VIZR_ROOT, 'tasks/upload.rb')
+load File.join(VIZR_ROOT, 'tasks/packages.rb')
 
 EMPTY_PROJECT_PATH = "./projects"
 DOT_FILE = ".vizr"
@@ -186,6 +187,48 @@ COMMANDS[:upload] = Proc.new do |args|
   end
 end
 
+COMMANDS[:install] = Proc.new do |args|
+  options = {} 
+
+  parser = OptionParser.new do |opts|
+    opts.banner = "usage: vizr install [args] <projectpath> <package>"
+
+    add_update_help_opts(opts, options)
+  end
+
+  parser.parse!(args)
+  setup_env(:install, args) do |target, env|
+    if args[1]
+      options[:package] = args[1]
+
+      Rake::Task["install"].invoke(target, options)
+    else
+      help(:install)
+    end
+  end
+end
+
+COMMANDS[:remove] = Proc.new do |args|
+  options = {} 
+
+  parser = OptionParser.new do |opts|
+    opts.banner = "usage: vizr remove [args] <projectpath> <package>"
+
+    add_update_help_opts(opts, options)
+  end
+
+  parser.parse!(args)
+  setup_env(:remove, args) do |target, env|
+    if args[1]
+      options[:package] = args[1]
+
+      Rake::Task["remove"].invoke(target, options)
+    else
+      help(:remove)
+    end
+  end
+end
+
 COMMANDS[:help] = Proc.new do |args|
   help(args[0])
 end
@@ -217,6 +260,8 @@ def help(command = nil)
   [
     ["build", "build a vizr project"],
     ["create", "create a new vizr project"],
+    ["install", "install a package"],
+    ["remove", "remove a package"],
     ["dist", "zip up the contents of a project's build folder"],
     ["help", "this information"],
     ["pull", "update vizr builder to newest version"],
@@ -400,7 +445,8 @@ def message(name, context = {})
     content = file.read
   end
 
-  template = Handlebars.compile(content)
+  handlebars = Handlebars::Context.new 
+  template = handlebars.compile(content)
   puts ""
   puts template.call(context)
   puts ""
