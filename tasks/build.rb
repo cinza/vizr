@@ -149,13 +149,13 @@ task :process_files, :target, :options do |t, args|
     jopts << ' -s'
   end
 
+  if !Dir.glob(File.join(tmp, "**", "*.styl")).empty?
+    setup_stylus
+
+    sh "stylus #{Dir.glob(File.join(tmp, "**", "*.styl")).join(" ")}"
+  end
+
   if File.exist?(File.join(tmp, "css"))
-    if !Dir.glob(File.join(tmp, "css", "*.styl")).empty?
-      setup_stylus
-
-      sh "stylus #{File.join(tmp, "css")}"
-    end
-
     if run_juicer_merge
       puts "Running juicer on CSS..."
       Dir.glob(File.join(tmp, "css", "*.css")) do |item|
