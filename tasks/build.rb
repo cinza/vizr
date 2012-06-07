@@ -150,6 +150,12 @@ task :process_files, :target, :options do |t, args|
   end
 
   if File.exist?(File.join(tmp, "css"))
+    if !Dir.glob(File.join(tmp, "css", "*.styl")).empty?
+      setup_stylus
+
+      sh "stylus #{File.join(tmp, "css")}"
+    end
+
     if run_juicer_merge
       puts "Running juicer on CSS..."
       Dir.glob(File.join(tmp, "css", "*.css")) do |item|
@@ -193,27 +199,19 @@ task :process_files, :target, :options do |t, args|
 end
 
 def setup_requirejs
-  if !node?
-    node_missing
-  end
-
   install_npm_package("requirejs", "2.0.1")
 end
 
 def setup_uglify_js
-  if !node?
-    node_missing
-  end
-
   install_npm_package("uglify-js", "1.2.6")
 end
 
 def setup_jshint
-  if !node?
-    node_missing
-  end
-
   install_npm_package("jshint", "0.7.1")
+end
+
+def setup_stylus
+  install_npm_package("stylus", "0.27.1")
 end
 
 def install_npm_package(package, version)
