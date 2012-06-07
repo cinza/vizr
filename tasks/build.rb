@@ -127,6 +127,12 @@ task :output_package_config, :target do |t, args|
         file.puts(render(template, :context => packages))
       }
     }
+
+    Dir.glob(File.join(VIZR_ROOT, "templates", "*.css.hbs")) { |template|
+      File.open(File.join(tmp, "css", File.basename(template, ".hbs")), "w") { |file|
+        file.puts(render(template, :context => packages))
+      }
+    }
   end
 end
 
