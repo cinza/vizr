@@ -1,0 +1,7 @@
+/* This file is only used to test this component in isolation. It's referenced
+ * from this component's index.html, but not included with component when others
+ * use it. */
+
+@import url('reset.css');
+
+@import url('main.css');

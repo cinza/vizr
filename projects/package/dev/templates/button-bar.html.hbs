@@ -1,0 +1,15 @@
+{{#if tweet.button_text}}
+<a href="https://twitter.com/intent/tweet?{{tweet.args}}" 
+  class="button twitter-button twitter-tweet-button">
+  <span class="bird"></span>
+  {{tweet.button_text}}
+</a>
+{{/if}}
+
+{{#if follow.screen_name}}
+<a href="https://twitter.com/intent/user?screen_name={{follow.screen_name}}"
+  class="button twitter-button twitter-follow-button">
+  <span class="bird"></span>
+  Follow @{{follow.screen_name}}
+</a>
+{{/if}}

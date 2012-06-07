@@ -1,0 +1,8 @@
+/* This file should import all CSS files that should be included with the
+ * component when installed. */
+
+@import url('packages.css'); /* Include CSS for any packages used */
+
+@import url('shared.css');
+@import url('dark.css');
+@import url('light.css');

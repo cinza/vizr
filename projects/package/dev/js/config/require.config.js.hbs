@@ -1,0 +1,37 @@
+// vim: ft=javascript
+(function() {
+
+  var config = {
+    baseUrl: 'js',
+
+    shim: {
+      'vendor/handlebars': {
+        exports: 'Handlebars'
+      },
+      'vendor/jquery': {
+        exports: 'jQuery'
+      }
+    },
+    
+    hbs: {
+      disableI18n: true,
+      helperPathCallback: function(name) {
+        return '/templates/helpers/' + name + '.js';
+      }
+    }
+  };
+
+  var paths;
+  if (window.massrel && massrel.cachepath) {
+    paths = config.paths = massrel.cachepath.pathsForRequire();
+  } else {
+    paths = config.paths = {};
+  }
+
+  paths['vendor/jquery'] = '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min';
+  paths.hbs = 'vendor/hbs';
+  paths.templates = '../templates';
+
+  require(config, ['main']);
+
+}())
