@@ -122,8 +122,10 @@ task :output_package_config, :target do |t, args|
       File.basename(package)
     }
 
-    File.open(File.join(tmp, "js", "config", "require.packages.js"), "w") { |file|
-      file.puts(render(File.join(VIZR_ROOT, "templates", "require.packages.js.hbs"), packages))
+    Dir.glob(File.join(VIZR_ROOT, "templates", "require.*.js.hbs")) { |template|
+      File.open(File.join(tmp, "js", "config", File.basename(template, ".hbs")), "w") { |file|
+        file.puts(render(template, :context => packages))
+      }
     }
   end
 end
@@ -149,8 +151,16 @@ task :process_files, :target, :options do |t, args|
   run_uglify_js = minify && found_jshint_file
   run_yui_js = minify && !found_jshint_file
 
-  # Check if project uses require.js
+  # Produce require.js build file if template
+  requirejs_build_template = File.join(tmp, JS_DIR, CONFIG_DIR, REQUIRE_JS_BUILD_FILE + ".hbs")
   requirejs_build_file = File.join(tmp, JS_DIR, CONFIG_DIR, REQUIRE_JS_BUILD_FILE)
+  if File.exists?(requirejs_build_template)
+    File.open(requirejs_build_file, "w") { |file|
+      file.puts(render(requirejs_build_template, :dir => tmp))
+    }
+  end
+
+  # Check if project uses require.js
   found_requirejs_build_file = File.exists?(requirejs_build_file)
 
   run_juicer_merge = !found_requirejs_build_file

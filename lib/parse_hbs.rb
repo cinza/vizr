@@ -21,7 +21,9 @@ def include_file(path)
   content
 end
 
-def render(path, context = @context)
+def render(path, options = {})
+  context = options[:context] || @context
+  @dir = options[:dir] || @dir
   content = include_file(path)
   template = @handlebars.compile(content)
   template.call(context)
