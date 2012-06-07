@@ -17,6 +17,7 @@ require 'optparse'
 require 'yaml'
 require 'handlebars'
 require 'fssm'
+require 'pathname'
 
 #disable fileutils verbosity
 verbose(false)

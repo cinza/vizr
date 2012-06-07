@@ -91,6 +91,19 @@ task :create_working_directory, :target do |t, args|
 
   rm_rf(tmp)
   cp_r(dev, tmp)
+
+  # TODO: Make recursive
+  tmp_packages = File.join(tmp, "packages")
+  if File.exists?(tmp_packages)
+    Dir.glob(File.join(tmp_packages, "*")) { |package|
+      package_realpath = Pathname.new(package).realpath
+      rm_rf(package)
+      mkdir_p(package)
+      Dir.glob(File.join(package_realpath, "*")) { |file|
+        cp_r(file, package)
+      }
+    }
+  end
 end
 
 task :process_files, :target, :options do |t, args|
@@ -293,7 +306,7 @@ task :move_to_build, :target, :options do |t, args|
   tmp = File.expand_path(TMP_PATH, target)
   build = File.expand_path(BUILD_PATH, target)
 
-  ["css", "js", "img", "fonts", "templates"].each do |folder|
+  ["css", "js", "img", "fonts", "templates", "packages"].each do |folder|
     if File.exists?(File.join(tmp, folder))
       mkdir_p(File.join(build, folder))
       cp_r(File.join(tmp, folder), build)
