@@ -2,7 +2,7 @@
  * component when installed. */
 
 /* Include CSS for any packages used (generated at build time) */
-@import url('packages.css');
+/* TODO: @import url('packages.css'); */
 
 @import url('shared.css');
 @import url('dark.css');

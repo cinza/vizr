@@ -117,13 +117,14 @@ task :output_package_config, :target do |t, args|
   tmp = File.expand_path(TMP_PATH, target)
 
   dev_packages = File.join(dev, "packages")
-  if File.exists?(dev_packages)
+  tmp_js_config = File.join(tmp, "js", "config")
+  if File.exists?(tmp_js_config)
     packages = Dir.glob(File.join(dev_packages, "*")).map { |package| 
       File.basename(package)
     }
 
     Dir.glob(File.join(VIZR_ROOT, "templates", "require.*.js.hbs")) { |template|
-      File.open(File.join(tmp, "js", "config", File.basename(template, ".hbs")), "w") { |file|
+      File.open(File.join(tmp_js_config, File.basename(template, ".hbs")), "w") { |file|
         file.puts(render(template, :context => packages))
       }
     }
