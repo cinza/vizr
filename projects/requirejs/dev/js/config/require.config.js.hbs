@@ -1,4 +1,4 @@
-// vim: ft=javascript
+{{! vim: set ft=javascript: }}
 (function() {
 
   var config = {
@@ -18,7 +18,10 @@
       helperPathCallback: function(name) {
         return '/templates/helpers/' + name + '.js';
       }
-    }
+    },
+
+    {{! This file is generated at build time }}
+    packages: {{{include "js/config/require.packages.js"}}}
   };
 
   var paths;
@@ -29,8 +32,12 @@
   }
 
   paths['vendor/jquery'] = '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min';
-  paths.hbs = 'vendor/hbs';
-  paths.templates = '../templates';
+  paths['hbs'] = 'vendor/hbs';
+  paths['css'] = '../css';
+  paths['templates'] = '../templates';
+  
+  {{! This file is generated at build time }}
+  {{{include "js/config/require.config.paths.js"}}}
 
   require(config, ['main']);
 
