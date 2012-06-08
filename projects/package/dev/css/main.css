@@ -1,7 +1,8 @@
 /* This file should import all CSS files that should be included with the
  * component when installed. */
 
-@import url('packages.css'); /* Include CSS for any packages used */
+/* Include CSS for any packages used (generated at build time) */
+@import url('packages.css');
 
 @import url('shared.css');
 @import url('dark.css');
