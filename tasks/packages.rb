@@ -54,4 +54,6 @@ task :remove, :target, :options do |t, args|
   end
 
   rm_f(package_link)
+
+  puts "Package #{package} removed"
 end
