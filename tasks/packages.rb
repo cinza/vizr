@@ -19,19 +19,22 @@ task :install, :target, :options do |t, args|
   end
 
   package_path = File.join(package_repo, package, "dev")
+  package_pathname = Pathname.new(package_path)
   if !File.exists?(package_path)
     puts "ERROR: Package #{package} does not exist"
     exit
   end
 
   packages_dir = File.join(target, "dev", "packages")
+  packages_dir_pathname = Pathname.new(packages_dir)
 
   mkdir_p(packages_dir)
  
   begin
-    File.symlink(package_path, File.join(packages_dir, package))
+    File.symlink(package_pathname.relative_path_from(packages_dir_pathname), File.join(packages_dir, package))
   rescue
     puts "ERROR: Couldn't install #{package}, may already be installed"
+    exit
   end
 
   puts "Package #{package} installed"
