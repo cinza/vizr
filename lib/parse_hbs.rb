@@ -9,7 +9,7 @@ DEBUG = true
 def include_file(path)
   content = ""
   path = File.expand_path(path, @dir)
-  begin 
+  begin
     File.open(path, "r") do |file|
       content = file.read
     end
@@ -34,7 +34,7 @@ end
 end
 
 @handlebars.register_helper(:render) do |this, path, block|
-  render(path)
+  render(path, :context => this)
 end
 
 @handlebars.register_helper(:enc) do |this, string, block|
@@ -56,7 +56,7 @@ if __FILE__ == $0
     @dir = File.dirname(@path)
     @context = {}
     if envpath
-      begin 
+      begin
         @context = YAML.load_file(File.expand_path(envpath, __dirname))
       rescue StandardError => e
         @context = {}
