@@ -560,7 +560,7 @@ define('meta_poller',['helpers'], function(helpers) {
     this._listeners = [];
 
     opts = opts || {};
-    this.disregard = opts.diregard || null;
+    this.disregard = opts.disregard || null;
     this.frequency = (opts.frequency || 30) * 1000;
 
     this.start = function() {
