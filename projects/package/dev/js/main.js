@@ -6,6 +6,10 @@ define([
   return function($el, context) {
     var $tweet; 
     var args = '';
+
+    if (!context) {
+      return;
+    }
     
     for (var key in context.tweet) {
       var value = context.tweet[key];
