@@ -205,6 +205,14 @@ task :process_files, :target, :options do |t, args|
   end
 
   if File.exist?(File.join(tmp, "js"))
+    if !Dir.glob(File.join(tmp, "js", "*.coffee")).empty?
+      setup_coffee_script
+
+      Dir.glob(File.join(tmp, "js", "*.coffee")) do |item|
+        sh "coffee -c #{item}"
+      end
+    end
+
     if run_juicer_merge
       puts "Running juicer on JS..."
       Dir.glob(File.join(tmp, "js", "*.js")) do |item|
@@ -251,6 +259,10 @@ end
 
 def setup_stylus
   install_npm_package("stylus", "0.27.1")
+end
+
+def setup_coffee_script
+  install_npm_package("coffee-script", "1.3.3")
 end
 
 def install_npm_package(package, version)
