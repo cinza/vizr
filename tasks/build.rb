@@ -363,4 +363,6 @@ task :clean_up, :target do |t, args|
   build = File.expand_path(BUILD_PATH, target)
 
   rm_rf(tmp)
+
+  puts "Build completed at #{Time.now}"
 end
