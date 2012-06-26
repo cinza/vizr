@@ -18,6 +18,7 @@ require 'yaml'
 require 'handlebars'
 require 'fssm'
 require 'pathname'
+require 'erb'
 
 #disable fileutils verbosity
 verbose(false)

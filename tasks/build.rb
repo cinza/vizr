@@ -129,6 +129,12 @@ task :output_package_config, :target do |t, args|
       }
     }
 
+    Dir.glob(File.join(VIZR_ROOT, "templates", "require.*.js.erb")) { |template|
+      File.open(File.join(tmp_js_config, File.basename(template, ".erb")), "w") { |file|
+        file.puts(ERB.new(File.read(template)).result(binding))
+      }
+    }
+    
     Dir.glob(File.join(VIZR_ROOT, "templates", "*.css.hbs")) { |template|
       File.open(File.join(tmp, "css", File.basename(template, ".hbs")), "w") { |file|
         file.puts(render(template, :context => packages))

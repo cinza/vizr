@@ -1,0 +1,8 @@
+[
+  <%= packages.map { |package|
+    "{
+      name: '#{package}',
+      location: '../packages/#{package}/js'
+    }"
+  }.join(",\n") %>
+]
