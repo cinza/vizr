@@ -10,7 +10,7 @@
     if(window._gaq_b) {
       var args2 = args.slice(0);
       args2[0] = 'b.'+args2[0];
-      _gaq.push(args);
+      _gaq_b.push(args);
     };
   }
 
