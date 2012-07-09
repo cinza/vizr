@@ -1,9 +1,8 @@
 define([
-  'vendor/jquery',
   'hbs!./templates/button-bar.html'
-], function($, buttonBarTmpl) {
+], function(buttonBarTmpl) {
 
-  return function($el, context) {
+  return function(context) {
     var $tweet; 
     var args = '';
 
@@ -21,7 +20,7 @@ define([
     
     context.tweet.args = args;
 
-    $(buttonBarTmpl(context)).appendTo($el);
+    return buttonBarTmpl(context);
   };
   
 });

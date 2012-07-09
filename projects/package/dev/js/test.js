@@ -1,3 +1,3 @@
 require(['main'], function(buttonBar) {
-  buttonBar($('.button-bar'), spec);
+  $('.button-bar').append(buttonBar(spec));
 });
