@@ -59,10 +59,5 @@ define(['vendor/jquery', 'vendor/massrel'], function($, massrel) {
   };
   UIList.noop = function() {};
 
-
-  if(typeof(window.massrel) === 'undefined') {
-    window.massrel = {};
-  }
-  massrel.UIList = UIList;
-
+  return UIList;
 });

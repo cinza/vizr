@@ -2,14 +2,14 @@ define([
   'vendor/jquery',
   'vendor/massrel',
   'hbs!templates/status-twitter.html',
-  'vendor/twitter-text',
   'uilist',
+  'vendor/twitter-text',
   'analytics'
-], function($, massrel, twitterTmpl) {
+], function($, massrel, twitterTmpl, UIList) {
 
   function app() {
     var elStream = $('#stream');
-    var uiStream = new massrel.UIList(elStream, {
+    var uiStream = new UIList(elStream, {
       limit: 6,
       renderer: twitterTmpl
     });
