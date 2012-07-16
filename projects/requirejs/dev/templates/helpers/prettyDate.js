@@ -45,7 +45,10 @@ define(['vendor/handlebars', 'vendor/massrel'], function(Handlebars, massrel) {
             yearsAgo: 'y'
           }
         },
-        timeStr = timeFormat[format || 'basic'];
+        timeStr;
+    
+    format  = format && typeof format === 'string' ? format : 'basic';
+    timeStr = timeFormat[format];
   
     if (isNaN(dayDiff) || dayDiff < 0) {
       return timeStr.justNow;
