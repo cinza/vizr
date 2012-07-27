@@ -39,8 +39,8 @@ define(['vendor/handlebars', 'vendor/massrel'], function(Handlebars, massrel) {
             daysAgo: 'd',
             oneWeekAgo: '1w',
             weeksAgo: 'w',
-            oneMonthAgo: '1m',
-            monthsAgo: 'm',
+            oneMonthAgo: '1mo',
+            monthsAgo: 'mo',
             oneYearAgo: '1y',
             yearsAgo: 'y'
           }
@@ -52,8 +52,6 @@ define(['vendor/handlebars', 'vendor/massrel'], function(Handlebars, massrel) {
   
     if (isNaN(dayDiff) || dayDiff < 0) {
       return timeStr.justNow;
-    } else if (dayDiff >= 31) {
-      return;
     }
   
     return (dayDiff === 0) && (
