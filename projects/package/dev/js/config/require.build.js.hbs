@@ -6,8 +6,11 @@
   optimize: 'none',
 
   paths: {
-    hbs: 'vendor/hbs',
-    templates: '../templates'
+    'hbs': 'vendor/hbs',
+    'css': '../css',
+    'templates': '../templates',
+    {{! This file is generated at build time }}
+    {{{include "js/config/require.build.paths.js"}}}
   },
 
   hbs: {
@@ -31,6 +34,9 @@
       exports: 'jQuery'
     }
   },
+
+  {{! This file is generated at build time }}
+  packages: {{{include "js/config/require.packages.js"}}},
 
   modules: [
     {
