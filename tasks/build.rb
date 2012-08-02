@@ -211,10 +211,10 @@ task :process_files, :target, :options do |t, args|
   end
 
   if File.exist?(File.join(tmp, "js"))
-    if !Dir.glob(File.join(tmp, "js", "*.coffee")).empty?
+    if !Dir.glob(File.join(tmp, "**", "*.coffee")).empty?
       setup_coffee_script
 
-      Dir.glob(File.join(tmp, "js", "*.coffee")) do |item|
+      Dir.glob(File.join(tmp, "**", "*.coffee")) do |item|
         sh "coffee -c #{item}"
       end
     end
