@@ -1,5 +1,5 @@
 <div class="massrel-status massrel-status-twitter" data-massrel-network="twt" data-massrel-id="{{status.id_str}}">
-  <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-avatar"><img src="{{status.user.profile_image_url}}" alt="" /></a>
+  <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-avatar"><img src="{{status.user.profile_image_url_https}}" alt="" /></a>
   <div class="massrel-content">
     <div class="massrel-author">
       {{#if retweet}}
@@ -11,7 +11,7 @@
     <div class="massrel-text">{{{autoLink status.text}}}</div>
     <div class="massrel-meta">
       <div class="massrel-permalink">
-        <a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" class="massrel-twitter-logo"><img src="./img/bird.png" alt="" /></a>
+        <a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" class="massrel-source-logo massrel-source-logo-twitter"><img src="./img/source_twitter.png" alt="" /></a>
         <a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" data-date="{{status.created_at}}" class="massrel-created-at massrel-relative-date">{{prettyDate status.created_at}}</a>
       </div>
       {{#if intents}}
