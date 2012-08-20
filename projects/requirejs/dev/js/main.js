@@ -5,7 +5,7 @@ define([
   'hbs!templates/status-facebook.html',
   'uilist',
   'vendor/twitter-text',
-  'analytics'
+  'vendor/analytics'
 ], function($, massrel, twitterTmpl, facebookTmple, UIList) {
 
   function renderTemplate(context) {

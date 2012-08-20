@@ -1,4 +1,4 @@
-define(function() {
+define(['vendor/twitter-widgets'], function() {
   // don't track anything if google analytics
   // is not on the page
   if(!window._gaq) { return; }
