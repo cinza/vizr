@@ -31,13 +31,14 @@ Example:
 
     $ vizr create project_name
 
-To use a different boilderplate:
+To use a different boilerplate:
 
     $ vizr create -t basic project_name
 
-**Boilderplates:**
+**Boilerplates:**
 
 * `basic`
+* `requirejs`
 
 ### build
 
