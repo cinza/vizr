@@ -6,11 +6,11 @@ define([
   'uilist',
   'vendor/twitter-text',
   'vendor/analytics'
-], function($, massrel, twitterTmpl, facebookTmple, UIList) {
+], function($, massrel, twitterTmpl, facebookTmpl, UIList) {
 
   function renderTemplate(context) {
     var template;
-    
+
     if (context.source.twitter) {
       template = twitterTmpl;
     } else if (context.source.facebook) {
@@ -18,7 +18,7 @@ define([
     } else {
       throw new Error('unknown render context');
     }
-    
+
     return template(context);
   }
 
@@ -46,13 +46,13 @@ define([
       frequency: 15
     }).batch(function (data) {
       var self = this;
-      
+
       // Is there data?
       if (data) {
         // Reverse data to get oldest first
         $.each(data.reverse(), function (i, status) {
           var context = massrel.Context.create(status); // Create the context
-          
+
           if (context.known) { // Is a known status type
             if (self.active) { // Is not the initial display, animate in one at a time
               self.timer = setTimeout(function () {
@@ -63,7 +63,7 @@ define([
             }
           }
         });
-        
+
         // Set some vars after the first load
         if (!self.active) {
           self.active = true;
