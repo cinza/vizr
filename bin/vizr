@@ -9,4 +9,11 @@ fi
 
 VIZR_ROOT="$(dirname $VIZR)/.."
 
+BUNDLE_GEMFILE="$VIZR_ROOT/Gemfile" bundle check > /dev/null
+
+if [ "$?" != "0" ]
+then
+  BUNDLE_GEMFILE="$VIZR_ROOT/Gemfile" bundle install
+fi
+
 BUNDLE_GEMFILE="$VIZR_ROOT/Gemfile" bundle exec ruby $VIZR_ROOT/lib/vizr.rb $*
