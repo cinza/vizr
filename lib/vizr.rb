@@ -16,7 +16,7 @@ require 'rake'
 require 'optparse'
 require 'yaml'
 require 'handlebars'
-require 'fssm'
+require 'listen'
 require 'pathname'
 require 'erb'
 
