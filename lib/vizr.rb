@@ -67,7 +67,9 @@ COMMANDS[:build] = Proc.new do |args|
     :minify => true,
     :jslint => false,
     :merge => true,
-    :watch => false
+    :watch => false,
+    :server => false,
+    :server_port => 8000
   }
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr build [args] <projectpath>"
@@ -92,6 +94,14 @@ COMMANDS[:build] = Proc.new do |args|
 
     opts.on("--watch", "Rebuild project on file changes") do
       options[:watch] = true
+    end
+
+    opts.on("--serve", "Enable HTTP server on build directory if watching for changes") do
+      options[:server] = true
+    end
+
+    opts.on("--port PORT", Integer, "Enable HTTP server on build directory (8000 by default)") do |port|
+      options[:server_port] = port
     end
 
     add_update_help_opts(opts, options)

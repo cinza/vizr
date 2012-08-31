@@ -30,21 +30,18 @@ task :build, :target, :options do |t, args|
     # Run the first build
     watched_build(target, options)
 
+    if options[:server]
+      Thread.new do
+        cd(build)
+        sh("python -m SimpleHTTPServer #{options[:server_port]}")
+      end
+    end
+
     # Watch for changes
-    #Listen.to(File.join(File.join(target, "dev"))) do |modified, added, removed|
-    #  rebuild.call("", "")
-    #end
     Listen.to(target, :filter => [%r{^env\.yaml}, %r{^dev\/}]) do |modified, added, removed|
       rebuild.call("", "")
     end
-    #Listen.to(target, :filter => %r{^env\.yaml}).change(&rebuild).start
-    #Listen.to(File.join(target, "dev")).change(&rebuild).start
 
-    #FSSM.monitor(target, ["dev/**/*", "env.yaml"], :directories => true) do
-    #  update {|base, relative| rebuild.call(base, relative)}
-    #  create {|base, relative| rebuild.call(base, relative)}
-    #  delete {|base, relative| rebuild.call(base, relative)}
-    #end
 
   else # single build / no watching
 
