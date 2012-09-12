@@ -30,24 +30,21 @@ task :build, :target, :options do |t, args|
     # Run the first build
     watched_build(target, options)
 
-    if options[:server]
-      Thread.new do
-        cd(build)
-        sh("python -m SimpleHTTPServer #{options[:server_port]}")
-      end
-    end
+    serve_build(build, options)
 
     # Watch for changes
     Listen.to(target, :filter => [%r{^env\.yaml}, %r{^dev\/}]) do |modified, added, removed|
       rebuild.call("", "")
     end
 
-
   else # single build / no watching
 
     single_build(target, options)
 
+    serve_build(build, options)
+
   end
+
 end
 
 def watched_build(target, options)
@@ -77,6 +74,31 @@ def single_build(target, options)
     :clean_up
   ].each do |task|
     Rake::Task[task].invoke(target, options)
+  end
+end
+
+def serve_build(build, options)
+  if !options[:server]
+    return
+  end
+
+  if options[:watch]
+
+    Thread.new do
+      run_server(build, options)
+    end
+
+  else
+
+    run_server(build, options)
+
+  end
+end
+
+def run_server(build, options)
+  cd(build)
+  sh("python -m SimpleHTTPServer #{options[:server_port]}") do
+    Kernel.exit!
   end
 end
 
