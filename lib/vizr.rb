@@ -19,6 +19,7 @@ require 'handlebars'
 require 'listen'
 require 'pathname'
 require 'erb'
+require 'open3'
 
 #disable fileutils verbosity
 verbose(false)

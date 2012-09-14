@@ -1,5 +1,5 @@
-NODE_VERSION = "0.6.18"
-NODE_VERSION_FILTER = /v0\.6.*/
+NODE_VERSION = "0.8.9"
+NODE_VERSION_FILTER = /v0\.[68].*/
 
 JS_DIR = "js"
 CONFIG_DIR = "config"
@@ -298,10 +298,16 @@ def install_npm_package(package, version)
 
   search_path = "#{root_package_path}/#{package}:#{package}@#{version}"
 
-  IO.popen("npm ll -g --parseable") { |io|
-    io.each { |line|
+  Open3.popen3("npm ll -g --parseable") { |sin, sout, serr|
+    sout.each { |line|
       if line.include?(search_path)
         return # Found package
+      end
+    }
+
+    serr.each { |line|
+      if line.include?("ERR!")
+        puts line
       end
     }
   }
