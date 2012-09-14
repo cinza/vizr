@@ -215,6 +215,14 @@ task :process_files, :target, :options do |t, args|
     sh "stylus #{Dir.glob(File.join(tmp, "**", "*.styl")).join(" ")}"
   end
 
+  if !Dir.glob(File.join(tmp, "**", "*.less")).empty?
+    setup_less
+
+    Dir.glob(File.join(tmp, "**", "*.less")).each do |f|
+      sh "lessc '#{f}' '#{f.sub(/\.less$/, '.css')}'"
+    end
+  end
+
   if File.exist?(File.join(tmp, "css"))
     if run_juicer_merge
       puts "Running juicer on CSS..."
@@ -226,6 +234,7 @@ task :process_files, :target, :options do |t, args|
   end
 
   if File.exist?(File.join(tmp, "js"))
+
     if !Dir.glob(File.join(tmp, "**", "*.coffee")).empty?
       setup_coffee_script
 
@@ -276,6 +285,10 @@ end
 
 def setup_jshint
   install_npm_package("jshint", "0.7.1")
+end
+
+def setup_less
+  install_npm_package("less", "1.3.0")
 end
 
 def setup_stylus
