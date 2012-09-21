@@ -1,4 +1,4 @@
-define(['vendor/twitter-widgets'], function() {
+define(['vendor/jquery', 'vendor/twitter-widgets'], function($) {
   // don't track anything if google analytics
   // is not on the page
   if(!window._gaq) { return; }
@@ -57,5 +57,60 @@ define(['vendor/twitter-widgets'], function() {
       twttr.events.bind('follow',   followIntentToAnalytics);
     });
   }
+
+  // tweet intent clicks
+  $('body').delegate('[data-massrel-id] a', 'click', function() {
+    var link = $(this),
+        href = link.attr('href'),
+        target = link.closest('[data-massrel-id]'),
+        status_id = target.attr('data-massrel-id'),
+        network = target.closest('[data-massrel-network]').attr('data-massrel-network'),
+        region = target.closest('[data-massrel-region]').attr('data-massrel-region');
+
+    if(network) {
+      status_id = network+'_'+status_id;
+    }
+
+    if(href) {
+      if(href.indexOf('twitter.com') > -1) {
+
+        if(href.indexOf('/status/') > -1) { // permalink
+          name = 'permalink';
+        }
+        else if(href.indexOf('/search?q=') > -1) { // hashtag
+          name = 'hashtag';
+        }
+        else if(href.indexOf('tweet?in_reply_to=') > -1) { // reply
+          name = 'reply';
+        }
+        else if(href.indexOf('intent/retweet') > -1) { // retweet
+          name = 'rt';
+        }
+        else if(href.indexOf('intent/favorite') > -1) { // favorite
+          name = 'fav';
+        }
+        else if(href.indexOf('intent/user') > -1) { // user intent
+          if(link.hasClass('tweet-url')) {
+            name = 'mention';  // mention
+          }
+          else {
+            name = 'author'; // most likely author
+          }
+        }
+        else {
+          name = 'author'; // most likely author
+        }
+      }
+      else {
+        // status link
+        name = 'link';
+      }
+
+      if(name) {
+        _gaq.push(['_trackEvent', 'tweetaction', name, region || 'other']);
+      }
+
+    }
+  });
 
 });
