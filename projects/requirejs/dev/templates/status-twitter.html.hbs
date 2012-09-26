@@ -1,5 +1,7 @@
 <div class="massrel-status massrel-status-twitter {{status_css}}" data-massrel-network="twt" data-massrel-id="{{status.id_str}}">
-  <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-avatar"><img src="{{status.user.profile_image_url}}" alt="" /></a>
+  <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-avatar">
+    <img src="{{status.user.profile_image_url_https}}" alt="" />
+  </a>
   <div class="massrel-content">
     {{#if config.permalink}}
     <a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" class="massrel-permalink">
