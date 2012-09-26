@@ -1,15 +1,18 @@
-<div class="massrel-status massrel-status-facebook" data-massrel-network="fb" data-massrel-id="{{status.facebook_id}}">
-  <a href="http://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-avatar"><img src="https://graph.facebook.com/{{status.from.id}}/picture" alt="" /></a>
+<div class="massrel-status massrel-status-facebook {{status_css}}" data-massrel-network="fb" data-massrel-id="{{status.facebook_id}}">
+  <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-avatar"><img src="https://graph.facebook.com/{{status.from.id}}/picture" alt="" /></a>
   <div class="massrel-content">
+    <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-permalink massrel-permalink-facebook">
+      <span class="massrel-permalink-created-at" title="{{formattedDate.full}}"><span data-date="{{formattedDate.timestamp}}">{{formattedDate.display}}</span><i class="massrel-permalink-logo massrel-permalink-logo-facebook"></i></span>
+    </a>
     <div class="massrel-author">
-      <a href="http://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-screen-name">{{status.from.name}}</a>
+      <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-primary-name">{{status.from.name}}</a>
     </div>
-    <div class="massrel-text">{{{autoLink status.message}}}</div>
+    <div class="massrel-text">{{{autoLink status.message}}}<!--{{#if status.link}} <a href="{{status.link}}">{{status.link}}</a>{{/if}}--></div>
     <div class="massrel-meta">
-      <div class="massrel-permalink">
-        <a href="{{status.link}}" class="massrel-source-logo massrel-source-logo-facebook"><img src="./img/source_facebook.png" alt="" /></a>
-        <a href="{{status.link}}" data-date="{{status.created_time}}" class="massrel-created-at massrel-relative-date">{{prettyDate status.created_time}}</a>
-      </div>
+      {{#if config.details_link}}
+      <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-details">Details</a>
+      {{/if}}
+
     </div>
   </div>
 </div>

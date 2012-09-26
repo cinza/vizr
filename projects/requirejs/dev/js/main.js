@@ -1,25 +1,14 @@
 define([
   'vendor/jquery',
   'vendor/massrel',
-  'hbs!templates/status-twitter.html',
-  'hbs!templates/status-facebook.html',
+  'template-renderer',
   'uilist',
   'vendor/twitter-text',
   'vendor/analytics'
-], function($, massrel, twitterTmpl, facebookTmpl, UIList) {
+], function($, massrel, templateRenderer, UIList) {
 
   function renderTemplate(context) {
-    var template;
-
-    if (context.source.twitter) {
-      template = twitterTmpl;
-    } else if (context.source.facebook) {
-      template = facebookTmpl;
-    } else {
-      throw new Error('unknown render context');
-    }
-
-    return template(context);
+    return templateRenderer.render(context);
   }
 
   function app() {
