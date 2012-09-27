@@ -107,7 +107,7 @@ define(['vendor/jquery', 'vendor/twitter-widgets'], function($) {
       }
 
       if(name) {
-        _gaq.push(['_trackEvent', 'tweetaction', name, region || 'other']);
+        gaPush(['_trackEvent', 'tweetaction', name, region || 'other']);
       }
 
     }
