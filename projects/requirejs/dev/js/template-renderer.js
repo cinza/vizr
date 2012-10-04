@@ -3,9 +3,11 @@ define([
   'vendor/massrel',
   'hbs!templates/status-twitter.html',
   'hbs!templates/status-facebook.html',
+  'hbs!./templates/status-instagram.html',
+  'hbs!./templates/status-google.html',
   'prettyDate',
   'vendor/twitter-text'
-], function($, massrel, twitterTmpl, facebookTmpl, prettyDate) {
+], function($, massrel, twitterTmpl, facebookTmpl, instagramTmpl, googleTmpl, prettyDate) {
 
   var templates = {
     CONFIG: {
@@ -85,6 +87,24 @@ define([
           timestamp: context.status.created_time
         };
         html = facebookTmpl(context);
+      }
+      else if(context.source.instagram) {
+        var d = new Date(context.status.created_time * 1000); // UNIX timestamp in ms
+        context.formattedDate = {
+          display: prettyDate(d, false),
+          full: prettyDate(d, true),
+          timestamp: d.toString()
+        };
+        html = instagramTmpl(context);
+      }
+      else if(context.source.google) {
+        var d = context.status.published;
+        context.formattedDate = {
+          display: prettyDate(d, false),
+          full: prettyDate(d, true),
+          timestamp: d
+        };
+        html = googleTmpl(context);
       }
       else {
         throw new Error('unknown render context: ' + context.source);
