@@ -117,6 +117,9 @@ task :create_working_directory, :target do |t, args|
   if File.exists?(tmp_packages)
     Dir.glob(File.join(tmp_packages, "*")) { |package|
       package_realpath = Pathname.new(package).realpath
+      if package == package_realpath.to_s
+        next # If it's not a symlink, we're done
+      end
       rm_rf(package)
       mkdir_p(package)
       Dir.glob(File.join(package_realpath, "*")) { |file|
