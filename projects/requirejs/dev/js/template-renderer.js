@@ -95,6 +95,13 @@ define([
           full: prettyDate(d, true),
           timestamp: d.toString()
         };
+
+        // change profile avatars to go through https proxy
+        context.status.user.profile_picture = '//i.embed.ly/1/image?key=fd577f7497bf11e0b95d4040d3dc5c07&url='+encodeURIComponent(context.status.user.profile_picture);
+        if(context.status.caption) {
+          context.status.caption.from.profile_picture = '//i.embed.ly/1/image?key=fd577f7497bf11e0b95d4040d3dc5c07&url='+encodeURIComponent(context.status.caption.from.profile_picture);
+        }
+
         html = instagramTmpl(context);
       }
       else if(context.source.google) {
@@ -107,7 +114,10 @@ define([
         html = googleTmpl(context);
       }
       else {
-        throw new Error('unknown render context: ' + context.source);
+        // unknown context
+        if(window.console && console.log) {
+          console.log('unknown render context', context);
+        }
       }
 
       return html;

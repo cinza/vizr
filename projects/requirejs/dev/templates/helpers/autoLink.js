@@ -24,7 +24,7 @@ define(['vendor/handlebars', 'vendor/twitter-text'], function(Handlebars) {
       return twttr.txt.autoLink(text, options);
     }
 
-    return twttr.txt.autoLinkUrlsCustom(text, options);
+    return twttr.txt.autoLinkUrlsCustom(text || '', options);
   }
 
   Handlebars.registerHelper('autoLink', autoLink);

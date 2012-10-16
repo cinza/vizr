@@ -3,7 +3,7 @@
   <div class="massrel-status-type-marker"></div>
   {{/if}}
   <a href="{{status.link}}" class="massrel-avatar">
-    <img src="{{status.caption.from.profile_picture}}" alt="" />
+    <img src="{{status.user.profile_picture}}" alt="" />
   </a>
   <div class="massrel-content">
     {{#if config.permalink}}
@@ -12,10 +12,10 @@
     </a>
     {{/if}}
     <div class="massrel-author">
-      <a href="{{status.link}}" class="massrel-primary-name">{{status.caption.from.full_name}}</a>
-      <a href="{{status.link}}" class="massrel-secondary-name">@{{status.caption.from.username}}</a>
+      <a href="{{status.link}}" class="massrel-primary-name">{{status.user.full_name}}</a>
+      <a href="{{status.link}}" class="massrel-secondary-name">@{{status.user.username}}</a>
     </div>
-    <div class="massrel-text">{{{autoLink status.caption.text}}}</div>
+    <div class="massrel-text">{{#if status.caption}}{{{autoLink status.caption.text}}}{{/if}}</div>
 
     <div class="massrel-meta">
       {{#if config.full_details}}
