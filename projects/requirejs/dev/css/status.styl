@@ -1,262 +1,263 @@
+//
+// THEME
+//
+
 font-size-px = 13
+font-normal = "Helvetica Neue", Arial, sans-serif
+
+color-major = #000
+color-minor = #999
+color-link = #0084B4
+color-hover = color-link
+color-border = #eee
+
+//
+// MIXINS
+//
 
 clearfix()
-  &:before
+  zoom 1 if support-for-ie
   &:after
-    content: ""
-    display: table
-  &:after
-    clear: both
-  zoom: 1 if support-for-ie
+    content '.'
+    display block
+    height 0
+    clear both
+    visibility hidden
 
-size(size) {
-  /* if you want to use px instead of em
-     comment out the line below and use the value
-     (size)px */
+// vendor-prefix a property and include the non-prefixed variant
+prefixed(prop, val)
+  for prefix in '-webkit-' '-moz-' '-ms-' '-o-' ''
+    {prefix + prop} val
+
+// calculate a size based on em
+size(size)
+  // if you want to use px instead of em use the value '(size)px' instead
   (size / 13)em
-}
 
-.massrel-status a {
-  text-decoration: none;
-}
-.massrel-status a:hover {
-  text-decoration: underline;
-}
-.massrel-status a img {
-  border: 0;
-}
+//
+// STYLE
+//
 
-.massrel-status {
-  clear: both;
-  min-height: 48px;
-  margin: 0;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  line-height: 1;
-  font-size: (font-size-px)px;
-  font-family: "Helvetica Neue",arial,sans-serif;
-  /* background-color: #fff; */
+.massrel-status
+  prefixed(transition, margin 100ms)
 
-  -webkit-transition: margin 0.1s;
-  -moz-transition: margin 0.1s;
-  -ms-transition: margin 0.1s;
-  transition: margin 0.1s;
-}
+  font-size (font-size-px)px
+  font-family font-normal
+  line-height 1
 
-.massrel-status:hover {
-  /* background-color: whiteSmoke; */
-  background-color: rgba(0, 0, 0, 0.04);
-}
+  clear both
+  min-height 48px
 
-.massrel-status:hover .massrel-intent-icon-reply {
-  background-position: -3px -22px;
-}
+  border-bottom 1px solid color-border
 
-.massrel-status:hover .massrel-intent-icon-retweet {
-  background-position: -23px -22px;
-}
+  margin 0
+  padding 10px
 
-.massrel-status:hover .massrel-intent-icon-favorite {
-  margin-right: 0;
-  background-position: -44px -22px;
-}
+  &:hover
+    background-color rgba(0, 0, 0, 0.04)
 
-.massrel-avatar {
-  float: left;
-}
+    .massrel-intent-icon-reply
+      background-position -3px -22px
+
+    .massrel-intent-icon-retweet
+      background-position -23px -22px
+
+    .massrel-intent-icon-favorite
+      margin-right 0
+      background-position -44px -22px
+
+    .massrel-intent
+      display inline-block
+
+    .massrel-place-icon
+      background url('../img/twitter/place.png') no-repeat
+
+    .massrel-intent,
+    .massrel-details,
+    .massrel-details-created-at
+      color color-hover
+
+  a
+    text-decoration none
+
+    img
+      border 0
+
+    &:hover
+      text-decoration underline
+
+.massrel-avatar
+  float left
 
 .massrel-avatar,
-.massrel-avatar img {
-  width: size(48);
-  height: size(48);
-  border-radius: 6px;
-}
+.massrel-avatar img
+  width size(48)
+  height size(48)
+  border-radius 6px
 
-.massrel-content {
-  padding-left: size(58);
-}
+.massrel-content
+  padding-left size(58)
 
-.massrel-permalink {
-  float: right;
-}
+.massrel-permalink
+  float right
 
-.massrel-permalink-logo {
-  position: relative;
-  top: size(-1);
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  vertical-align: top;
+.massrel-permalink-logo
+  position relative
+  top size(-1)
+  display inline-block
+  width 16px
+  height 16px
+  vertical-align top
 
-  *top: 0; /* ie7 */
-}
+  // ie7
+  *top 0
 
-.massrel-permalink-logo-twitter {
-  margin-left: size(2);
-  background: url('../img/twitter/permalink_logo.png') no-repeat;
+.massrel-permalink-logo-twitter
+  margin-left size(2)
+  background url('../img/twitter/permalink_logo.png') no-repeat
 
-  /* ie7 */
-  *left: size(2); /* same as margin-left */
-  *margin-left: 0;
-}
+  // ie7
+  *left size(@margin-left)
+  *margin-left 0
 
-.massrel-permalink-logo-facebook {
-  top: size(-2);
-  margin-left: size(3);
-  background: url('../img/facebook/permalink_logo.png') no-repeat;
+.massrel-permalink-logo-facebook
+  top size(-2)
+  margin-left size(3)
+  background url('../img/facebook/permalink_logo.png') no-repeat
 
-  /* ie7 */
-  *top: 0;
-  *left: size(3); /* same as margin-left */
-  *margin-left: 0;
-}
+  // ie7
+  *top 0
+  *left size(@margin-left)
+  *margin-left 0
 
 .massrel-permalink-logo-instagram,
-.massrel-details-logo-instagram {
-  top: size(-2);
-  margin-left: size(3);
-  background: url('../img/instagram/permalink_logo.png') no-repeat;
+.massrel-details-logo-instagram
+  top size(-2)
+  margin-left size(3)
+  background url('../img/instagram/permalink_logo.png') no-repeat
 
-  /* ie7 */
-  *top: 0;
-  *left: size(3); /* same as margin-left */
-  *margin-left: 0;
-}
+  // ie7
+  *top 0
+  *left size(@margin-left)
+  *margin-left 0
 
 .massrel-permalink-logo-google,
-.massrel-details-logo-google {
-  top: size(-2);
-  margin-left: size(3);
-  background: url('../img/google/permalink_logo.png') no-repeat;
+.massrel-details-logo-google
+  top size(-2)
+  margin-left size(3)
+  background url('../img/google/permalink_logo.png') no-repeat
 
-  /* ie7 */
-  *top: 0;
-  *left: size(3); /* same as margin-left */
-  *margin-left: 0;
-}
+  // ie7
+  *top 0
+  *left size(@margin-left)
+  *margin-left 0
 
+.massrel-author
+  // prevents spacing issues with verified icon
+  min-height size(15)
 
-.massrel-author {
-  min-height: size(15); /* prevents spacing issues with verified icon */
-  margin-bottom: size(3);
-}
+  margin-bottom size(3)
 
-.massrel-primary-name {
-  min-height: size(15); /* prevents spacing issues with verified icon */
-  color: #000;
-  font-size: size(14);
-  font-weight: bold;
-}
+.massrel-primary-name
+  // prevents spacing issues with verified icon
+  min-height size(15)
 
-.massrel-verified {
-  width: size(15);
-  height: size(15);
-  vertical-align: top;
-  margin-left: size(2);
-}
+  color color-major
+  font-size size(14)
+  font-weight bold
 
-.massrel-text {
-  color: #000;
-  line-height: 1.4;
-  font-size: size(14);
-  word-wrap: break-word;
-}
+.massrel-verified
+  width size(15)
+  height size(15)
+  vertical-align top
+  margin-left size(2)
 
-.massrel-retweeted-by {
-  margin: 3px 0 6px 0;
-}
+.massrel-text
+  color color-major
+  line-height 1.4
+  font-size size(14)
+  word-wrap break-word
 
-.massrel-retweeted-by-label {
-  position: relative;
-  top: size(-1);
-  float: left;
-  display: inline-block;
-  width: 18px;
-  height: 14px;
-  margin-right: size(3);
-  background: url('../img/twitter/retweeted_by.png') no-repeat;
-  text-indent: -100000px;
-}
+  a
+    color color-link
 
-.massrel-meta {
-  clearfix();
-  margin-top: size(3);
-  height: size(16);
-}
+.massrel-retweeted-by
+  margin 3px 0 6px 0
 
-.massrel-details {
-  display: inline;
-  margin-right: size(10);
-  /* margin-top: size(2); */
-  white-space: nowrap;
-}
+.massrel-retweeted-by-label
+  position relative
+  top size(-1)
+  float left
+  display inline-block
+  width 18px
+  height 14px
+  margin-right size(3)
+  background url('../img/twitter/retweeted_by.png') no-repeat
+  text-indent -100000px
 
-.massrel-place-icon {
-  position: relative;
-  top: size(-2);
-  float: left;
-  display: block;
-  width: 10px;
-  height: 16px;
-  margin-right: size(4);
-  background: url('../img/twitter/place_light.png') no-repeat;
-}
+.massrel-meta
+  clearfix()
 
-.massrel-intents {
-  display: inline;
-}
+  margin-top size(3)
+  height size(16)
 
-.massrel-intent {
-  positioN: relative;
-  display: none;
-  padding-left: 16px;
-  margin-right: size(7);
-}
+.massrel-details
+  display inline
+  margin-right size(10)
+  white-space nowrap
 
-.massrel-status:hover .massrel-intent {
-  display: inline-block;
-}
+.massrel-place-icon
+  position relative
+  top size(-2)
+  float left
+  display block
+  width 10px
+  height 16px
+  margin-right size(4)
+  background url('../img/twitter/place_light.png') no-repeat
 
-.massrel-intent-icon {
-  position: absolute;
-  top: size(0);
-  left: 0;
-  display: inline-block;
-  width: 14px;
-  height: 13px;
-  background: url('../img/twitter/intents.png') no-repeat;
+.massrel-intents
+  display inline
 
-  *top: size(0); /* ie7 */
-}
+.massrel-intent
+  position relative
+  display none
+  padding-left 16px
+  margin-right size(7)
 
-.massrel-intent-icon-reply {
-  background-position: -3px -2px;
-}
+.massrel-intent-icon
+  position absolute
+  top size(0)
+  left 0
+  display inline-block
+  width 14px
+  height 13px
+  background url('../img/twitter/intents.png') no-repeat
 
-.massrel-intent-retweet {
-  padding-left: 17px;
-}
+  // ie7
+  *top size(0)
 
-.massrel-intent-icon-retweet {
-  background-position: -23px -2px;
-}
+.massrel-intent-icon-reply
+  background-position -3px -2px
 
-.massrel-intent-favorite {
- padding-left: 13px;
-}
+.massrel-intent-retweet
+  padding-left 17px
 
-.massrel-intent-icon-favorite {
-  background-position: -44px -2px;
-}
+.massrel-intent-icon-retweet
+  background-position -23px -2px
 
-.massrel-media {
-  margin-top: size(10);
-}
+.massrel-intent-favorite
+  padding-left 13px
 
-.massrel-media-gallery img {
-  max-height: 200px;
-  max-width: 200px;
-}
+.massrel-intent-icon-favorite
+  background-position -44px -2px
+
+.massrel-media
+  margin-top size(10)
+
+.massrel-media-gallery img
+  max-height 200px
+  max-width 200px
 
 .massrel-permalink,
 .massrel-intent,
@@ -264,151 +265,113 @@ size(size) {
 .massrel-retweeted-by,
 .massrel-retweeted-by-user,
 .massrel-details,
-.massrel-details-created-at {
-  color: #999;
-}
-
-.massrel-text a,
-.massrel-status:hover .massrel-intent,
-.massrel-status:hover .massrel-details,
-.massrel-status:hover .massrel-details-created-at {
-  color: #0084B4;
-}
-
-.massrel-status:hover .massrel-place-icon {
-  background: url('../img/twitter/place.png') no-repeat;
-}
+.massrel-details-created-at
+  color color-minor
 
 /* names on different lines (complimentary to narrow) */
+.massrel-different-lines
+  .massrel-author
+    float left
 
-.massrel-different-lines {
-  
-}
+  .massrel-primary-name
+    display block
 
-.massrel-different-lines .massrel-author {
-  float: left;
-}
+    // good size for both small and large avatar
+    margin-top size(4)
+    margin-bottom size(3)
 
-.massrel-different-lines .massrel-primary-name {
-  display: block;
-  margin-top: size(4); /* good size for both small and large avatar */
-  margin-bottom: size(3);
-}
+  // better for large avatar (default), and testing for double class selector
+  &.massrel-different-lines
+    .massrel-primary-name
+      margin-top size(6)
 
-.massrel-different-lines.massrel-different-lines .massrel-primary-name {
-  margin-top: size(6); /* better for large avatar (default), and testing for double class selector */
-}
-
-.massrel-different-lines .massrel-text {
-  clear: both;
-}
+  .massrel-text
+    clear both
 
 /* small avatar (good for mobile) */
+.massrel-small-avatar
+  .massrel-avatar,
+  .massrel-avatar img
+    width size(40)
+    height size(40)
 
-.massrel-small-avatar .massrel-avatar,
-.massrel-small-avatar .massrel-avatar img {
-  width: size(40);
-  height: size(40);
-}
+  &.massrel-different-lines
+    .massrel-primary-name
+      margin-top 3px
 
-.massrel-small-avatar.massrel-different-lines .massrel-primary-name {
-  margin-top: 3px;
-}
-
-.massrel-small-avatar .massrel-content {
-  padding-left: 50px;
-}
+  .massrel-content
+    padding-left 50px
 
 
 /* full width text */
+.massrel-full-width
+  .massrel-content
+    padding-left 0
 
-.massrel-full-width .massrel-content {
-  padding-left: 0;
-}
+  .massrel-avatar
+    margin-right 10px
 
-.massrel-full-width .massrel-avatar {
-  margin-right: 10px;
-}
+  .massrel-text
+    clear both
+    padding-top 5px
 
-.massrel-full-width .massrel-text {
-  clear: both;
-  padding-top: 5px;
-
-  *padding-top: 0; /* ie7 hack */
-  *margin-top: size(-5); /* ie7 hack */
-}
-
+    // ie7
+    *padding-top 0
+    *margin-top size(-5)
 
 /* no action labels */
-
-.massrel-no-action-label .massrel-intent {
-  top: size(-12);
-}
-
+.massrel-no-action-label
+  .massrel-intent
+    top size(-12)
 
 /* always show intents */
-
-.massrel-show-intents .massrel-intent {
-  display: inline-block;
-}
-
+.massrel-show-intents
+  .massrel-intent
+    display inline-block
 
 /* intents right */
+.massrel-right-intents
+  .massrel-intents
+    float right
 
-.massrel-right-intents .massrel-intents {
-  float: right;
-}
+/* large intent icons */
+.massrel-large-icons
+  .massrel-intent
+    padding-left 21px
 
+  .massrel-intent-retweet
+    padding-left 23px
 
-/* large intents icons */
+  .massrel-intent-favorite
+    padding-left 19px
 
-.massrel-large-icons .massrel-intent {
-  padding-left: 21px;
-}
+  .massrel-intent-icon
+    height 16px
 
-.massrel-large-icons .massrel-intent-retweet {
-  padding-left: 23px;
-}
+  .massrel-intent-icon-reply
+    width 18px
+    background-position -6px -46px
 
-.massrel-large-icons .massrel-intent-favorite {
-  padding-left: 19px;
-}
+  .massrel-intent-icon-retweet
+    width 22px
+    background-position -34px -46px
 
-.massrel-large-icons .massrel-intent-icon {
-  height: 16px;
-}
+  .massrel-intent-icon-favorite
+    width 16px
+    background-position -67px -47px
 
-.massrel-large-icons .massrel-intent-icon-reply {
-  width: 18px;
-  background-position: -6px -46px;
-}
+  &:hover
+    .massrel-intent-icon-reply
+      background-position -6px -76px
 
-.massrel-large-icons .massrel-intent-icon-retweet {
-  width: 22px;
-  background-position: -34px -46px;
-}
+    .massrel-intent-icon-retweet
+      background-position -34px -76px
 
-.massrel-large-icons .massrel-intent-icon-favorite {
-  width: 16px;
-  background-position: -67px -47px;
-}
+    .massrel-intent-icon-favorite
+      background-position -67px -77px
 
-.massrel-large-icons:hover .massrel-intent-icon-reply {
-  background-position: -6px -76px;
-}
-
-.massrel-large-icons:hover .massrel-intent-icon-retweet {
-  background-position: -34px -76px;
-}
-
-.massrel-large-icons:hover .massrel-intent-icon-favorite {
-  background-position: -67px -77px;
-}
-
-/* not details link */
-
-.massrel-no-details .massrel-meta {
-  height: auto;
-  min-height: auto;
-}
-
+/* no details link */
+.massrel-no-details
+  .massrel-meta
+    height auto
+    min-height auto
