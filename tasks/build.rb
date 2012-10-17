@@ -137,7 +137,7 @@ task :output_package_config, :target do |t, args|
   dev_packages = File.join(dev, "packages")
   tmp_js_config = File.join(tmp, "js", "config")
   if File.exists?(tmp_js_config)
-    packages = Dir.glob(File.join(dev_packages, "*")).map { |package| 
+    packages = Dir.glob(File.join(dev_packages, "*")).map { |package|
       File.basename(package)
     }
 
@@ -152,7 +152,7 @@ task :output_package_config, :target do |t, args|
         file.puts(ERB.new(File.read(template)).result(binding))
       }
     }
-    
+
     Dir.glob(File.join(VIZR_ROOT, "templates", "*.css.hbs")) { |template|
       File.open(File.join(tmp, "css", File.basename(template, ".hbs")), "w") { |file|
         file.puts(render(template, :context => packages))
@@ -283,7 +283,7 @@ def setup_requirejs
 end
 
 def setup_uglify_js
-  install_npm_package("uglify-js", "1.2.6")
+  install_npm_package("uglify-js", "1.3.3")
 end
 
 def setup_jshint
