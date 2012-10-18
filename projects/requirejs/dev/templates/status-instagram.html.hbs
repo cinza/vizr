@@ -8,7 +8,9 @@
   <div class="massrel-content">
     {{#if config.permalink}}
     <a href="{{status.link}}" class="massrel-permalink">
-      <span class="massrel-permalink-created-at" title="{{formattedDate.full}}"><span data-date="{{formattedDate.timestamp}}">{{formattedDate.display}}</span><i class="massrel-permalink-logo massrel-permalink-logo-instagram"></i></span>
+      <span class="massrel-permalink-created-at" title="{{formattedDate.full}}">
+        <span data-date="{{formattedDate.timestamp}}">{{formattedDate.display}}</span><i class="massrel-permalink-logo massrel-permalink-logo-instagram icon-instagram-logo"></i>
+      </span>
     </a>
     {{/if}}
     <div class="massrel-author">
@@ -20,7 +22,7 @@
     <div class="massrel-meta">
       {{#if config.full_details}}
       <span class="massrel-details">
-        <a href="{{status.link}}" class="massrel-details-created-at" title="{{formattedDate.full}}"><i class="massrel-details-logo massrel-details-logo-instagram"></i>{{formattedDate.full}}</a>
+        <a href="{{status.link}}" class="massrel-details-created-at" title="{{formattedDate.full}}"><i class="massrel-details-logo massrel-details-logo-instagram icon-instagram-logo"></i>{{formattedDate.full}}</a>
         {{#if config.location}}
         {{#if status.location}}
         <a href="{{status.link}}" class="massrel-place">from {{status.location.name}}</a>
@@ -30,7 +32,7 @@
       {{else}}
       {{#if config.location}}
       {{#if status.location}}
-      <a href="{{status.link}}" class="massrel-details massrel-place"><i class="massrel-place-icon"></i>from {{status.location.name}}</a>
+      <a href="{{status.link}}" class="massrel-details massrel-place"><i class="massrel-place-icon icon-place"></i>from {{status.location.name}}</a>
       {{else}}
       {{#if config.details_link}}<a href="{{status.link}}" class="massrel-details">Details</a>{{/if}}
       {{/if}}

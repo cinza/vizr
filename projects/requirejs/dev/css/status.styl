@@ -69,13 +69,16 @@ size(size)
     .massrel-intent
       display inline-block
 
-    .massrel-place-icon
-      background url('../img/twitter/place.png') no-repeat
-
     .massrel-intent,
     .massrel-details,
     .massrel-details-created-at
       color color-hover
+
+    // make sure font icons don't get underlined when hovered over
+    .massrel-place-icon,
+    .massrel-intent-icon,
+    .massrel-verified
+      text-decoration none
 
   a
     text-decoration none
@@ -102,55 +105,32 @@ size(size)
   float right
 
 .massrel-permalink-logo
-  position relative
-  top size(-1)
-  display inline-block
-  width 16px
-  height 16px
-  vertical-align top
+  margin-left size(3)
 
-  // ie7
-  *top 0
+.massrel-details-logo
+  margin-right size(3)
 
 .massrel-permalink-logo-twitter
-  margin-left size(2)
-  background url('../img/twitter/permalink_logo.png') no-repeat
-
-  // ie7
-  *left size(@margin-left)
-  *margin-left 0
+  font-size 1.2em
+  vertical-align -0.1em
+  color #08bcef
 
 .massrel-permalink-logo-facebook
-  top size(-2)
-  margin-left size(3)
-  background url('../img/facebook/permalink_logo.png') no-repeat
-
-  // ie7
-  *top 0
-  *left size(@margin-left)
-  *margin-left 0
+  font-size 1.3em
+  vertical-align -0.1em
+  color #3b5998
 
 .massrel-permalink-logo-instagram,
 .massrel-details-logo-instagram
-  top size(-2)
-  margin-left size(3)
-  background url('../img/instagram/permalink_logo.png') no-repeat
-
-  // ie7
-  *top 0
-  *left size(@margin-left)
-  *margin-left 0
+  font-size 1.3em
+  vertical-align -0.1em
+  color #4d3e34
 
 .massrel-permalink-logo-google,
 .massrel-details-logo-google
-  top size(-2)
-  margin-left size(3)
-  background url('../img/google/permalink_logo.png') no-repeat
-
-  // ie7
-  *top 0
-  *left size(@margin-left)
-  *margin-left 0
+  font-size 1.3em
+  vertical-align -0.1em
+  color #dd4b39
 
 .massrel-author
   // prevents spacing issues with verified icon
@@ -167,10 +147,22 @@ size(size)
   font-weight bold
 
 .massrel-verified
-  width size(15)
-  height size(15)
-  vertical-align top
-  margin-left size(2)
+  position relative
+  display inline
+  color #1dcaff
+  font-size 1.2em
+  margin-left size(1.5)
+
+  // positioned behind the font icon to make the 'check' white, not transparent
+  .massrel-verified-bg
+    position absolute
+    float left
+    left size(3)
+    top size(4)
+    width size(7)
+    height size(7)
+    background-color #fff
+    z-index -1
 
 .massrel-text
   color color-major
@@ -185,15 +177,34 @@ size(size)
   margin 3px 0 6px 0
 
 .massrel-retweeted-by-label
-  position relative
-  top size(-1)
   float left
   display inline-block
-  width 18px
-  height 14px
-  margin-right size(3)
-  background url('../img/twitter/retweeted_by.png') no-repeat
   text-indent -100000px
+
+.massrel-retweeted-by-icon
+  display inline-block
+  float left
+  width size(13)
+
+  padding-left size(3)
+  padding-right @padding-left
+  padding-bottom size(1.5)
+  margin-right size(3)
+  margin-top size(-1)
+
+  color #fff
+
+  prefixed(border-radius, size(3))
+
+  grad-start = #bbbbbb
+  grad-end = #9a9a9a
+  background grad-start
+  background -moz-linear-gradient(top, grad-start 0%, grad-end 100%)
+  background -webkit-gradient(linear, left top, left bottom, color-stop(0%,grad-start), color-stop(100%,grad-end))
+  background -webkit-linear-gradient(top, grad-start 0%,grad-end 100%)
+  background -o-linear-gradient(top, grad-start 0%,grad-end 100%)
+  background -ms-linear-gradient(top, grad-start 0%,grad-end 100%)
+  background linear-gradient(to bottom, grad-start 0%,grad-end 100%)
 
 .massrel-meta
   clearfix()
@@ -207,50 +218,19 @@ size(size)
   white-space nowrap
 
 .massrel-place-icon
-  position relative
-  top size(-2)
-  float left
-  display block
-  width 10px
-  height 16px
-  margin-right size(4)
-  background url('../img/twitter/place_light.png') no-repeat
+  margin-right size(1)
+  font-size 1.15em
 
 .massrel-intents
   display inline
 
 .massrel-intent
-  position relative
   display none
-  padding-left 16px
+  padding-left size(1)
   margin-right size(7)
 
 .massrel-intent-icon
-  position absolute
-  top size(0)
-  left 0
-  display inline-block
-  width 14px
-  height 13px
-  background url('../img/twitter/intents.png') no-repeat
-
-  // ie7
-  *top size(0)
-
-.massrel-intent-icon-reply
-  background-position -3px -2px
-
-.massrel-intent-retweet
-  padding-left 17px
-
-.massrel-intent-icon-retweet
-  background-position -23px -2px
-
-.massrel-intent-favorite
-  padding-left 13px
-
-.massrel-intent-icon-favorite
-  background-position -44px -2px
+  padding-right size(3)
 
 .massrel-media
   margin-top size(10)
@@ -333,42 +313,6 @@ size(size)
 .massrel-right-intents
   .massrel-intents
     float right
-
-/* large intent icons */
-.massrel-large-icons
-  .massrel-intent
-    padding-left 21px
-
-  .massrel-intent-retweet
-    padding-left 23px
-
-  .massrel-intent-favorite
-    padding-left 19px
-
-  .massrel-intent-icon
-    height 16px
-
-  .massrel-intent-icon-reply
-    width 18px
-    background-position -6px -46px
-
-  .massrel-intent-icon-retweet
-    width 22px
-    background-position -34px -46px
-
-  .massrel-intent-icon-favorite
-    width 16px
-    background-position -67px -47px
-
-  &:hover
-    .massrel-intent-icon-reply
-      background-position -6px -76px
-
-    .massrel-intent-icon-retweet
-      background-position -34px -76px
-
-    .massrel-intent-icon-favorite
-      background-position -67px -77px
 
 /* no details link */
 .massrel-no-details

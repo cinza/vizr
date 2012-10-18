@@ -2,7 +2,9 @@
   <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-avatar"><img src="//graph.facebook.com/{{status.from.id}}/picture" alt="" /></a>
   <div class="massrel-content">
     <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-permalink massrel-permalink-facebook">
-      <span class="massrel-permalink-created-at" title="{{formattedDate.full}}"><span data-date="{{formattedDate.timestamp}}">{{formattedDate.display}}</span><i class="massrel-permalink-logo massrel-permalink-logo-facebook"></i></span>
+      <span class="massrel-permalink-created-at" title="{{formattedDate.full}}">
+        <span data-date="{{formattedDate.timestamp}}">{{formattedDate.display}}</span><i class="massrel-permalink-logo massrel-permalink-logo-facebook icon-facebook-logo"></i>
+      </span>
     </a>
     <div class="massrel-author">
       <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-primary-name">{{status.from.name}}</a>
@@ -12,7 +14,6 @@
       {{#if config.details_link}}
       <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-details">Details</a>
       {{/if}}
-
     </div>
   </div>
 </div>

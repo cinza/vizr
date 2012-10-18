@@ -19,7 +19,6 @@ define([
         always_show_intents: false,
         never_show_intents: false, // "never" takes precidence over "always"
         right_aligned_intents: false,
-        large_intent_icons: false,
         location: false,
         details_link: true,
         permalink: true,
@@ -53,10 +52,6 @@ define([
 
       if(config.right_aligned_intents) {
         statusCss.push('massrel-right-intents');
-      }
-
-      if(config.large_intent_icons) {
-        statusCss.push('massrel-large-icons');
       }
 
       if(!config.details_link) {
