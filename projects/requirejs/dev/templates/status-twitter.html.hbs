@@ -5,19 +5,17 @@
   <div class="massrel-content">
     {{#if config.permalink}}
     <a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" class="massrel-permalink">
-      <span class="massrel-permalink-created-at" title="{{formattedDate.full}}">
-        <span data-date="{{formattedDate.timestamp}}">{{formattedDate.display}}</span><i class="massrel-permalink-logo massrel-permalink-logo-twitter icon-twitter-logo"></i>
-      </span>
+      <span class="massrel-permalink-created-at" title="{{formattedDate.full}}"><span data-date="{{formattedDate.timestamp}}">{{formattedDate.display}}</span><i class="massrel-permalink-logo massrel-permalink-logo-twitter"></i></span>
     </a>
     {{/if}}
     <div class="massrel-author">
-      <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-primary-name">{{status.user.name}}{{#if config.verified}}{{#if status.user.verified}}<div class="massrel-verified"><div class="massrel-verified-bg"></div><i class="icon-twitter-verified" title="Verified account"></i></div>{{/if}}{{/if}}</a>
+      <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-primary-name">{{status.user.name}}{{#if config.verified}}{{#if status.user.verified}}<img class="massrel-verified" src="./img/twitter/verified.png" title="Verified profile" alt="" />{{/if}}{{/if}}</a>
       <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-secondary-name">@{{status.user.screen_name}}</a>
     </div>
     <div class="massrel-text">{{{autoLink status.text}}}</div>
 
     {{#if retweet}}
-    <div class="massrel-retweeted-by"><span class="massrel-retweeted-by-label" title="Retweeted">Retweeted</span><div class="massrel-retweeted-by-icon"><i class="icon-twitter-retweet"></i></div> by <a href="https://twitter.com/intent/user?screen_name={{retweeted_by_user.screen_name}}" class="massrel-retweeted-by-user">{{retweeted_by_user.name}}</a></div>
+    <div class="massrel-retweeted-by"><i class="massrel-retweeted-by-label" title="Retweeted">Retweeted</i> by <a href="https://twitter.com/intent/user?screen_name={{retweeted_by_user.screen_name}}" class="massrel-retweeted-by-user">{{retweeted_by_user.name}}</a></div>
     {{/if}}
 
     <div class="massrel-meta">
@@ -33,7 +31,7 @@
       {{else}}
       {{#if config.location}}
       {{#if status.place}}
-      <a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" class="massrel-details massrel-place"><i class="massrel-place-icon icon-place"></i>from {{status.place.full_name}}</a>
+      <a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" class="massrel-details massrel-place"><i class="massrel-place-icon"></i>from {{status.place.full_name}}</a>
       {{else}}
       {{#if config.details_link}}<a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" class="massrel-details">Details</a>{{/if}}
       {{/if}}
@@ -44,9 +42,9 @@
 
       {{#unless config.never_show_intents}}
       <div class="massrel-intents">
-        <a href="https://twitter.com/intent/tweet?in_reply_to={{status.id_str}}" class="massrel-intent massrel-intent-reply" title="Reply"><i class="massrel-intent-icon massrel-intent-icon-reply icon-twitter-reply"></i>{{#if config.action_label}}Reply{{/if}}</a>
-        <a href="https://twitter.com/intent/retweet?tweet_id={{status.id_str}}" class="massrel-intent massrel-intent-retweet" title="Retweet"><i class="massrel-intent-icon massrel-intent-icon-retweet icon-twitter-retweet"></i>{{#if config.action_label}}Retweet{{/if}}</a>
-        <a href="https://twitter.com/intent/favorite?tweet_id={{status.id_str}}" class="massrel-intent massrel-intent-favoritec" title="Favorite"><i class="massrel-intent-icon massrel-intent-icon-favorite icon-twitter-favorite"></i>{{#if config.action_label}}Favorite{{/if}}</a>
+        <a href="https://twitter.com/intent/tweet?in_reply_to={{status.id_str}}" class="massrel-intent massrel-intent-reply" title="Reply"><i class="massrel-intent-icon massrel-intent-icon-reply"></i>{{#if config.action_label}}Reply{{/if}}</a>
+        <a href="https://twitter.com/intent/retweet?tweet_id={{status.id_str}}" class="massrel-intent massrel-intent-retweet" title="Retweet"><i class="massrel-intent-icon massrel-intent-icon-retweet"></i>{{#if config.action_label}}Retweet{{/if}}</a>
+        <a href="https://twitter.com/intent/favorite?tweet_id={{status.id_str}}" class="massrel-intent massrel-intent-favorite" title="Favorite"><i class="massrel-intent-icon massrel-intent-icon-favorite"></i>{{#if config.action_label}}Favorite{{/if}}</a>
        </div>
       {{/unless}}
     </div>
