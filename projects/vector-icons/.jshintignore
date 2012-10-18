@@ -1,0 +1,6 @@
+build
+dev/js/vendor
+dev/js/config
+tmpbuild/js/vendor
+tmpbuild/js/config
+.git

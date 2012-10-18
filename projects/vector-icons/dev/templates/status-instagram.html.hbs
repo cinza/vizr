@@ -1,0 +1,46 @@
+<div class="massrel-status massrel-status-instagram {{status_css}}{{#each types}} massrel-status-type-{{this}}{{/each}}" data-massrel-network="inst" data-massrel-id="{{status.id}}">
+  {{#if type_markers}}
+  <div class="massrel-status-type-marker"></div>
+  {{/if}}
+  <a href="{{status.link}}" class="massrel-avatar">
+    <img src="{{status.user.profile_picture}}" alt="" />
+  </a>
+  <div class="massrel-content">
+    {{#if config.permalink}}
+    <a href="{{status.link}}" class="massrel-permalink">
+      <span class="massrel-permalink-created-at" title="{{formattedDate.full}}">
+        <span data-date="{{formattedDate.timestamp}}">{{formattedDate.display}}</span><i class="massrel-permalink-logo massrel-permalink-logo-instagram icon-instagram-logo"></i>
+      </span>
+    </a>
+    {{/if}}
+    <div class="massrel-author">
+      <a href="{{status.link}}" class="massrel-primary-name">{{status.user.full_name}}</a>
+      <a href="{{status.link}}" class="massrel-secondary-name">@{{status.user.username}}</a>
+    </div>
+    <div class="massrel-text">{{#if status.caption}}{{{autoLink status.caption.text}}}{{/if}}</div>
+
+    <div class="massrel-meta">
+      {{#if config.full_details}}
+      <span class="massrel-details">
+        <a href="{{status.link}}" class="massrel-details-created-at" title="{{formattedDate.full}}"><i class="massrel-details-logo massrel-details-logo-instagram icon-instagram-logo"></i>{{formattedDate.full}}</a>
+        {{#if config.location}}
+        {{#if status.location}}
+        <a href="{{status.link}}" class="massrel-place">from {{status.location.name}}</a>
+        {{/if}}
+        {{/if}}
+      </span>
+      {{else}}
+      {{#if config.location}}
+      {{#if status.location}}
+      <a href="{{status.link}}" class="massrel-details massrel-place"><i class="massrel-place-icon icon-place"></i>from {{status.location.name}}</a>
+      {{else}}
+      {{#if config.details_link}}<a href="{{status.link}}" class="massrel-details">Details</a>{{/if}}
+      {{/if}}
+      {{else}}
+      {{#if config.details_link}}<a href="{{status.link}}" class="massrel-details">Details</a>{{/if}}
+      {{/if}}
+      {{/if}}
+    </div>
+
+  </div>
+</div>

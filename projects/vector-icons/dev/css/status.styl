@@ -1,0 +1,321 @@
+//
+// THEME
+//
+
+font-size-px = 13
+font-normal = "Helvetica Neue", Arial, sans-serif
+
+color-major = #000
+color-minor = #999
+color-link = #0084B4
+color-hover = color-link
+color-border = #eee
+
+//
+// MIXINS
+//
+
+clearfix()
+  zoom 1 if support-for-ie
+  &:after
+    content '.'
+    display block
+    height 0
+    clear both
+    visibility hidden
+
+// vendor-prefix a property and include the non-prefixed variant
+prefixed(prop, val)
+  for prefix in '-webkit-' '-moz-' '-ms-' '-o-' ''
+    {prefix + prop} val
+
+// calculate a size based on em
+size(size)
+  // if you want to use px instead of em use the value '(size)px' instead
+  (size / 13)em
+
+//
+// STYLE
+//
+
+.massrel-status
+  prefixed(transition, margin 100ms)
+
+  font-size (font-size-px)px
+  font-family font-normal
+  line-height 1
+
+  clear both
+  min-height 48px
+
+  border-bottom 1px solid color-border
+
+  margin 0
+  padding 10px
+
+  &:hover
+    background-color rgba(0, 0, 0, 0.04)
+
+    .massrel-intent-icon-reply
+      background-position -3px -22px
+
+    .massrel-intent-icon-retweet
+      background-position -23px -22px
+
+    .massrel-intent-icon-favorite
+      margin-right 0
+      background-position -44px -22px
+
+    .massrel-intent
+      display inline-block
+
+    .massrel-intent,
+    .massrel-details,
+    .massrel-details-created-at
+      color color-hover
+
+    // make sure font icons don't get underlined when hovered over
+    .massrel-place-icon,
+    .massrel-intent-icon,
+    .massrel-verified
+      text-decoration none
+
+  a
+    text-decoration none
+
+    img
+      border 0
+
+    &:hover
+      text-decoration underline
+
+.massrel-avatar
+  float left
+
+.massrel-avatar,
+.massrel-avatar img
+  width size(48)
+  height size(48)
+  border-radius 6px
+
+.massrel-content
+  padding-left size(58)
+
+.massrel-permalink
+  float right
+
+.massrel-permalink-logo
+  margin-left size(3)
+
+.massrel-details-logo
+  margin-right size(3)
+
+.massrel-permalink-logo-twitter
+  font-size 1.2em
+  vertical-align -0.1em
+  color #08bcef
+
+.massrel-permalink-logo-facebook
+  font-size 1.3em
+  vertical-align -0.1em
+  color #3b5998
+
+.massrel-permalink-logo-instagram,
+.massrel-details-logo-instagram
+  font-size 1.3em
+  vertical-align -0.1em
+  color #4d3e34
+
+.massrel-permalink-logo-google,
+.massrel-details-logo-google
+  font-size 1.3em
+  vertical-align -0.1em
+  color #dd4b39
+
+.massrel-author
+  // prevents spacing issues with verified icon
+  min-height size(15)
+
+  margin-bottom size(3)
+
+.massrel-primary-name
+  // prevents spacing issues with verified icon
+  min-height size(15)
+
+  color color-major
+  font-size size(14)
+  font-weight bold
+
+.massrel-verified
+  position relative
+  display inline
+  color #1dcaff
+  font-size 1.2em
+  margin-left size(1.5)
+
+  // positioned behind the font icon to make the 'check' white, not transparent
+  .massrel-verified-bg
+    position absolute
+    float left
+    left size(3)
+    top size(4)
+    width size(7)
+    height size(7)
+    background-color #fff
+    z-index -1
+
+.massrel-text
+  color color-major
+  line-height 1.4
+  font-size size(14)
+  word-wrap break-word
+
+  a
+    color color-link
+
+.massrel-retweeted-by
+  margin 3px 0 6px 0
+
+.massrel-retweeted-by-label
+  float left
+  display inline-block
+  text-indent -100000px
+
+.massrel-retweeted-by-icon
+  display inline-block
+  float left
+  width size(13)
+
+  padding-left size(3)
+  padding-right @padding-left
+  padding-bottom size(1.5)
+  margin-right size(3)
+  margin-top size(-1)
+
+  color #fff
+
+  prefixed(border-radius, size(3))
+
+  grad-start = #bbbbbb
+  grad-end = #9a9a9a
+  background grad-start
+  background -moz-linear-gradient(top, grad-start 0%, grad-end 100%)
+  background -webkit-gradient(linear, left top, left bottom, color-stop(0%,grad-start), color-stop(100%,grad-end))
+  background -webkit-linear-gradient(top, grad-start 0%,grad-end 100%)
+  background -o-linear-gradient(top, grad-start 0%,grad-end 100%)
+  background -ms-linear-gradient(top, grad-start 0%,grad-end 100%)
+  background linear-gradient(to bottom, grad-start 0%,grad-end 100%)
+
+.massrel-meta
+  clearfix()
+
+  margin-top size(3)
+  height size(16)
+
+.massrel-details
+  display inline
+  margin-right size(10)
+  white-space nowrap
+
+.massrel-place-icon
+  margin-right size(1)
+  font-size 1.15em
+
+.massrel-intents
+  display inline
+
+.massrel-intent
+  display none
+  padding-left size(1)
+  margin-right size(7)
+
+.massrel-intent-icon
+  padding-right size(3)
+
+.massrel-media
+  margin-top size(10)
+
+.massrel-media-gallery img
+  max-height 200px
+  max-width 200px
+
+.massrel-permalink,
+.massrel-intent,
+.massrel-secondary-name,
+.massrel-retweeted-by,
+.massrel-retweeted-by-user,
+.massrel-details,
+.massrel-details-created-at
+  color color-minor
+
+/* names on different lines (complimentary to narrow) */
+.massrel-different-lines
+  .massrel-author
+    float left
+
+  .massrel-primary-name
+    display block
+
+    // good size for both small and large avatar
+    margin-top size(4)
+    margin-bottom size(3)
+
+  // better for large avatar (default), and testing for double class selector
+  &.massrel-different-lines
+    .massrel-primary-name
+      margin-top size(6)
+
+  .massrel-text
+    clear both
+
+/* small avatar (good for mobile) */
+.massrel-small-avatar
+  .massrel-avatar,
+  .massrel-avatar img
+    width size(40)
+    height size(40)
+
+  &.massrel-different-lines
+    .massrel-primary-name
+      margin-top 3px
+
+  .massrel-content
+    padding-left 50px
+
+
+/* full width text */
+.massrel-full-width
+  .massrel-content
+    padding-left 0
+
+  .massrel-avatar
+    margin-right 10px
+
+  .massrel-text
+    clear both
+    padding-top 5px
+
+    // ie7
+    *padding-top 0
+    *margin-top size(-5)
+
+/* no action labels */
+.massrel-no-action-label
+  .massrel-intent
+    top size(-12)
+
+/* always show intents */
+.massrel-show-intents
+  .massrel-intent
+    display inline-block
+
+/* intents right */
+.massrel-right-intents
+  .massrel-intents
+    float right
+
+/* no details link */
+.massrel-no-details
+  .massrel-meta
+    height auto
+    min-height auto
