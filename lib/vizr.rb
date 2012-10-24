@@ -47,7 +47,7 @@ COMMANDS[:create] = Proc.new do |args|
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr create [args] <projectpath>"
 
-    opts.on("-t", "--type TYPE", [:basic, :requirejs, :package], "Predefined project type (defaults to #{options[:type]})") do |type|
+    opts.on("-t", "--type TYPE", [:basic, :requirejs, :package, :'vector-icons'], "Predefined project type (defaults to #{options[:type]})") do |type|
       options[:type] = type.to_sym
     end
 
@@ -200,7 +200,7 @@ COMMANDS[:upload] = Proc.new do |args|
 end
 
 COMMANDS[:install] = Proc.new do |args|
-  options = {} 
+  options = {}
 
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr install [args] <projectpath> <package>"
@@ -221,7 +221,7 @@ COMMANDS[:install] = Proc.new do |args|
 end
 
 COMMANDS[:remove] = Proc.new do |args|
-  options = {} 
+  options = {}
 
   parser = OptionParser.new do |opts|
     opts.banner = "usage: vizr remove [args] <projectpath> <package>"
@@ -457,7 +457,7 @@ def message(name, context = {})
     content = file.read
   end
 
-  handlebars = Handlebars::Context.new 
+  handlebars = Handlebars::Context.new
   template = handlebars.compile(content)
   puts ""
   puts template.call(context)
