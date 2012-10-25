@@ -12,7 +12,7 @@
         exports: 'jQuery'
       }
     },
-    
+
     hbs: {
       disableI18n: true,
       helperPathCallback: function(name) {
@@ -21,7 +21,9 @@
     },
 
     {{! This file is generated at build time }}
-    packages: {{{include "js/config/require.packages.js"}}}
+    packages: {{{include "js/config/require.packages.js"}}},
+
+    waitSeconds: 60
   };
 
   var paths;
@@ -32,11 +34,11 @@
   }
 
   paths['vendor/jquery'] = '//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min';
+  paths['vendor/google-analytics'] = '//www.google-analytics.com/ga';
   paths['vendor/twitter-widgets'] = '//platform.twitter.com/widgets';
   paths['hbs'] = 'vendor/hbs';
   paths['css'] = '../css';
   paths['templates'] = '../templates';
-  
   {{! This file is generated at build time }}
   {{{include "js/config/require.config.paths.js"}}}
 
