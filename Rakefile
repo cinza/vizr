@@ -6,7 +6,7 @@ task :install => ["/usr/local/bin/vizr"] do
   sh "bundle install"
 
   puts "install juicer dependencies"
-  sh "juicer install yui_compressor"
+  # sh "juicer install yui_compressor"
   sh "juicer install jslint"
 end
 
