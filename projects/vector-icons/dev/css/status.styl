@@ -149,20 +149,18 @@ size(size)
 .massrel-verified
   position relative
   display inline
-  color #1dcaff
   font-size 1.2em
+
   margin-left size(1.5)
 
-  // positioned behind the font icon to make the 'check' white, not transparent
-  .massrel-verified-bg
-    position absolute
-    float left
-    left size(3)
-    top size(4)
-    width size(7)
-    height size(7)
-    background-color #fff
-    z-index -1
+  // background for the verified icon
+  .icon-twitter-verified-bg
+    color #1dcaff
+
+  // check for the verified icon
+  .icon-twitter-verified-check
+    margin-left -1em
+    color #fff
 
 .massrel-text
   color color-major
