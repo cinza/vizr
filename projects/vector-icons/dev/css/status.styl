@@ -135,16 +135,18 @@ size(size)
 
 .massrel-verified
   position relative
-  display inline
+  display inline-block
   font-size size(16)
 
-  margin-left size(1.5)
-  margin-right size(11)
+  width size(13)
+  height @width
+
+  margin-left size(2)
 
   // background for the verified icon
   .icon-twitter-verified-bg
     position absolute
-    top size(1)
+    top size(1.5)
     left 0
 
     color #1dcaff
@@ -152,7 +154,7 @@ size(size)
   // check for the verified icon
   .icon-twitter-verified-check
     position absolute
-    top size(1)
+    top size(1.5)
     left 0
 
     color #fff
