@@ -11,7 +11,7 @@
     </a>
     {{/if}}
     <div class="massrel-author">
-      <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-primary-name">{{status.user.name}}{{#if config.verified}}{{#if status.user.verified}}<div class="massrel-verified"><i class="icon-twitter-verified-bg"></i><i class="icon-twitter-verified-check" title="Verified account"></i></div>{{/if}}{{/if}}</a>
+      <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-primary-name">{{status.user.name}}{{#if config.verified}}{{#if status.user.verified}}<span class="massrel-verified"><i class="icon-twitter-verified-bg"></i><i class="icon-twitter-verified-check" title="Verified account"></i></span>{{/if}}{{/if}}</a>
       <a href="https://twitter.com/intent/user?screen_name={{status.user.screen_name}}" class="massrel-secondary-name">@{{status.user.screen_name}}</a>
     </div>
     <div class="massrel-text">{{{autoLink status.text}}}</div>
