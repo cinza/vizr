@@ -56,11 +56,8 @@ size(size)
   &:hover
     background-color rgba(black, 0.04)
 
-    .massrel-intent-icon-favorite
-      margin-right 0
-
     .massrel-intent
-      display inline-block
+      visibility visible
 
     .massrel-intent,
     .massrel-details,
@@ -220,12 +217,15 @@ size(size)
   display inline
 
 .massrel-intent
-  display none
-  padding-left size(1)
-  margin-right size(7)
+  // usually hidden until hovered over
+  visibility hidden
+
+  // only space the intents that AREN'T the first one
+  &~ .massrel-intent
+    margin-left size(8)
 
 .massrel-intent-icon
-  padding-right size(3)
+  margin-right size(3)
 
 .massrel-media
   margin-top size(10)
@@ -301,7 +301,7 @@ size(size)
 /* always show intents */
 .massrel-show-intents
   .massrel-intent
-    display inline-block
+    visibility visible
 
 /* intents right */
 .massrel-right-intents
