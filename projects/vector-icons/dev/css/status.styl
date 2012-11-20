@@ -171,7 +171,12 @@ size(size)
 .massrel-retweeted-by-label
   float left
   display inline-block
-  text-indent -100000px
+
+  // effectively hide the text
+  width 0
+  height 0
+  font-size 0
+  overflow hidden
 
 .massrel-retweeted-by-icon
   display inline-block
