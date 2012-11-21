@@ -11,8 +11,14 @@
     </div>
     <div class="massrel-text">{{{autoLink status.message}}}<!--{{#if status.link}} <a href="{{status.link}}">{{status.link}}</a>{{/if}}--></div>
     <div class="massrel-meta">
+      {{#if config.full_details}}
+      <span class="massrel-details">
+        <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-details-created-at" title="{{formattedDate.full}}"><i class="massrel-details-logo massrel-details-logo-facebook icon-facebook-logo"></i>{{formattedDate.full}}</a>
+      </span>
+      {{else}}
       {{#if config.details_link}}
       <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-details">Details</a>
+      {{/if}}
       {{/if}}
     </div>
   </div>

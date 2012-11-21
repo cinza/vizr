@@ -65,9 +65,10 @@ size(size)
       color color-hover
 
     // make sure font icons don't get underlined when hovered over
-    .massrel-place-icon,
-    .massrel-intent-icon,
+    .massrel-place-icon
+    .massrel-intent-icon
     .massrel-verified
+    .massrel-details-logo
       text-decoration none
 
   a
@@ -95,29 +96,34 @@ size(size)
   float right
 
 .massrel-permalink-logo
-  margin-left size(3)
+.massrel-details-logo
   vertical-align size(-1.5)
 
   // IE7 aligns them too far down
   *vertical-align size(-0.5)
 
+.massrel-permalink-logo
+  margin-left size(3)
+
 .massrel-details-logo
   margin-right size(3)
 
 .massrel-permalink-logo-twitter
+.massrel-details-logo-twitter
   font-size size(16)
   color #08bcef
 
 .massrel-permalink-logo-facebook
+.massrel-details-logo-facebook
   font-size size(17)
   color #3b5998
 
-.massrel-permalink-logo-instagram,
+.massrel-permalink-logo-instagram
 .massrel-details-logo-instagram
   font-size size(17)
   color #4d3e34
 
-.massrel-permalink-logo-google,
+.massrel-permalink-logo-google
 .massrel-details-logo-google
   font-size size(17)
   color #dd4b39

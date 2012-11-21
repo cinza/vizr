@@ -23,7 +23,7 @@
     <div class="massrel-meta">
       {{#if config.full_details}}
       <span class="massrel-details">
-        <a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" class="massrel-details-created-at" title="{{formattedDate.full}}">{{formattedDate.full}}</a>
+        <a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" class="massrel-details-created-at" title="{{formattedDate.full}}"><i class="massrel-details-logo massrel-details-logo-twitter icon-twitter-logo"></i>{{formattedDate.full}}</a>
         {{#if config.location}}
         {{#if status.place}}
         <a href="https://twitter.com/{{status.user.screen_name}}/status/{{status.id_str}}" class="massrel-place">from {{status.place.full_name}}</a>
