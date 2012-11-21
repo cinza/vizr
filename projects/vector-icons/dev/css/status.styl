@@ -180,14 +180,19 @@ size(size)
 
 .massrel-retweeted-by-icon
   display inline-block
-  float left
+  font-size size(11)
+
+  vertical-align size(1.75)
+
   width size(13)
 
-  padding-left size(3)
-  padding-right @padding-left
-  padding-bottom size(3)
-  margin-right size(3)
-  margin-top size(-1)
+  padding-left size(2.5)
+  padding-right size(3)
+  padding-bottom size(2.5)
+
+  // make padding better on IE7
+  *padding-bottom size(4)
+  *padding-left size(3.5)
 
   color #fff
 
