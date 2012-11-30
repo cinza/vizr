@@ -215,7 +215,7 @@ task :process_files, :target, :options do |t, args|
   if !Dir.glob(File.join(tmp, "**", "*.styl")).empty?
     setup_stylus
 
-    sh "stylus #{Dir.glob(File.join(tmp, "**", "*.styl")).join(" ")}"
+    sh "stylus -u nib #{Dir.glob(File.join(tmp, "**", "*.styl")).join(" ")}"
   end
 
   if !Dir.glob(File.join(tmp, "**", "*.less")).empty?
@@ -295,7 +295,8 @@ def setup_less
 end
 
 def setup_stylus
-  install_npm_package("stylus", "0.27.1")
+  install_npm_package("stylus", "0.31.0")
+  install_npm_package("nib", "0.9.0")
 end
 
 def setup_coffee_script
