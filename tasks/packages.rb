@@ -11,10 +11,14 @@ task :install, :target, :options do |t, args|
     end
   end
 
-  package_repo = File.join(root_dir, "massrel-products", "packages")
+  package_repo = File.join(root_dir, "..", "product-studio", "products", "packages")
 
   if root_dir.empty? || !File.exists?(package_repo)
-    puts "ERROR: Couldn't find package repo. Are you inside the viz repo?"
+    package_repo = File.join(root_dir, "..", "packages")
+  end
+
+  if root_dir.empty? || !File.exists?(package_repo)
+    puts "ERROR: Couldn't find package repo. Are you inside the viz or a PS product's repo?"
     exit
   end
 
@@ -29,7 +33,7 @@ task :install, :target, :options do |t, args|
   packages_dir_pathname = Pathname.new(packages_dir)
 
   mkdir_p(packages_dir)
- 
+
   begin
     File.symlink(package_pathname.relative_path_from(packages_dir_pathname), File.join(packages_dir, package))
   rescue
