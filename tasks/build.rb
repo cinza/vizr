@@ -127,6 +127,9 @@ task :create_working_directory, :target do |t, args|
       }
     }
   end
+
+  # Blacklist artifacts of new build process
+  rm_rf(File.join(tmp, "components"))
 end
 
 task :output_package_config, :target do |t, args|
