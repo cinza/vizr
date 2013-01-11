@@ -1,5 +1,5 @@
 <div class="massrel-status massrel-status-google {{status_css}}{{#each types}} massrel-status-type-{{this}}{{/each}}" data-massrel-network="ggl" data-massrel-id="{{status.id}}">
-  {{#if type_markers}}
+  {{#if config.type_markers}}
   <div class="massrel-status-type-marker"></div>
   {{/if}}
   <a href="{{status.actor.url}}" class="massrel-avatar">

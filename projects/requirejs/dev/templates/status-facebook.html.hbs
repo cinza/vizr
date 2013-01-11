@@ -1,4 +1,7 @@
-<div class="massrel-status massrel-status-facebook {{status_css}}" data-massrel-network="fb" data-massrel-id="{{status.facebook_id}}">
+<div class="massrel-status massrel-status-facebook {{status_css}}{{#each types}} massrel-status-type-{{this}}{{/each}}" data-massrel-network="fb" data-massrel-id="{{status.facebook_id}}">
+  {{#if config.type_markers}}
+  <div class="massrel-status-type-marker"></div>
+  {{/if}}
   <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-avatar"><img src="//graph.facebook.com/{{status.from.id}}/picture" alt="" /></a>
   <div class="massrel-content">
     <a href="https://www.facebook.com/profile.php?id={{status.from.id}}&v=wall" class="massrel-permalink massrel-permalink-facebook">
