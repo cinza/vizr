@@ -6,7 +6,7 @@ http://fortawesome.github.com/Font-Awesome/
 @font-face {
   font-family: "Socialite";
   src: url('../fonts/socialite.eot');
-  src: url('../fonts/socialite.eot?') format('eot'), url('../fonts/socialite.woff') format('woff'), url('../fonts/socialite.ttf') format('truetype'), url('../fonts/socialite.svg#ios') format('svg');
+  src: url('../fonts/socialite.eot?') format('embedded-opentype'), url('../fonts/socialite.woff') format('woff'), url('../fonts/socialite.ttf') format('truetype'), url('../fonts/socialite.svg#ios') format('svg');
   font-weight: normal;
   font-style: normal;
 }
