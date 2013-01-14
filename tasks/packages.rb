@@ -34,7 +34,12 @@ task :install, :target, :options do |t, args|
 
   mkdir_p(packages_dir)
 
+  package_install_file = File.join(package_repo, package, "install")
   begin
+    if File.executable?(package_install_file)
+      puts `sh #{package_install_file} #{target}`
+    end
+
     File.symlink(package_pathname.relative_path_from(packages_dir_pathname), File.join(packages_dir, package))
   rescue
     puts "ERROR: Couldn't install #{package}, may already be installed"
