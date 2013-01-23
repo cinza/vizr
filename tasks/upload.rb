@@ -2,8 +2,19 @@ require 'rest_client'
 require 'json'
 
 task :upload, :target, :options do |t, args|
+
   target = args[:target]
   options = args[:options]
+
+  # Prevent an upload from happening until the target repo is in a clean state
+  dirty_git = !(system "git diff-index --quiet HEAD #{target}")
+  if dirty_git
+    abort("Aborted. Uncommitted changes in target repo.")
+  end
+
+  # Don't let an upload happen until a non-dev build is completed and a vizr dist is done.
+  COMMANDS[:build].call([target]) # Use default options for build
+  COMMANDS[:dist].call([target]) # Use default options for dist
 
   api_key = options['api_key']
   endpoint = options['upload']['endpoint']
