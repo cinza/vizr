@@ -8,7 +8,7 @@
 /* Yes, deliciously evil. */
 /*jslint evil: true, strict: false, plusplus: false, regexp: false */
 /*global require: false, XMLHttpRequest: false, ActiveXObject: false,
-define: false, process: false, window: false */  
+define: false, process: false, window: false */
 define([
 //>>excludeStart('excludeHbs', pragmas.excludeHbs)
 // BEGIN MR PATCH: Look for handlebars in the same dir
@@ -252,16 +252,16 @@ define([
             }
 
             // This finds the Helper dependencies since it's soooo similar
-            function getExternalDeps( nodes ) { 
+            function getExternalDeps( nodes ) {
               var res   = [];
               var helpersres = [];
-              
+
               if ( nodes && nodes.statements ) {
                 res = recursiveVarSearch( nodes.statements, [], undefined, helpersres );
               }
 
               var defaultHelpers = ["helperMissing", "blockHelperMissing", "each", "if", "unless", "with"];
-              
+
               return {
                 vars : _(res).chain().unique().map(function(e){
                   if ( e === "" ) {
@@ -308,7 +308,7 @@ define([
                       debugProperties = "",
                       metaObj, head, linkElem;
 
-                  
+
                   if ( depStr ) {
                     depStr = ",'hbs!" + depStr + "'";
                   }
@@ -316,7 +316,7 @@ define([
                     helpDepStr = "," + helpDepStr;
                   }
 
-                  
+
                   if ( meta !== "{}" ) {
                     try {
                       metaObj = JSON.parse(meta);
@@ -362,9 +362,9 @@ define([
                     }
                     catch(e){
                       console.log('error injecting styles');
-                    } 
+                    }
                   }
-                  
+
                   if ( ! config.isBuild && ! config.serverRender ) {
                     debugOutputStart = "<!-- START - " + name + " -->";
                     debugOutputEnd = "<!-- END - " + name + " -->";
@@ -376,11 +376,11 @@ define([
 
                   var mapping = disableI18n? false : _.extend( langMap, config.localeMapping ),
                       prec = precompile( text, mapping );
-                  
+
                   text = "/* START_TEMPLATE */\n" +
 // BEGIN MR PATCH: Fix up path to handlebars
                          "define(['hbs','vendor/handlebars'"+depStr+helpDepStr+"], function( hbs, Handlebars ){ \n" +
-// END MR PATCH                         
+// END MR PATCH
                            "var t = Handlebars.template(" + prec + ");\n" +
                            "Handlebars.registerPartial('" + name.replace( /\//g , '_') + "', t);\n" +
                            debugProperties +
@@ -392,14 +392,6 @@ define([
                   if (config.isBuild) {
                       buildMap[compiledName] = text;
                   }
-
-                  //IE with conditional comments on cannot handle the
-                  //sourceURL trick, so skip it if enabled.
-                  /*@if (@_jscript) @else @*/
-                  if (!config.isBuild) {
-                      text += "\r\n//@ sourceURL=" + path;
-                  }
-                  /*@end@*/
 
                   for ( var i in deps ) {
                     if ( deps.hasOwnProperty(i) ) {
