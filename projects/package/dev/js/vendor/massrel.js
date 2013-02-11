@@ -1,293 +1,21 @@
+  /*!
+   * massrel/stream-js 0.11.2
+   *
+   * Copyright 2012 Mass Relevance
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this work except in compliance with the License.
+   * You may obtain a copy of the License at:
+   *
+   *    http://www.apache.org/licenses/LICENSE-2.0
+   */
 (function () {
-/**
- * almond 0.0.3 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
- * Available via the MIT or new BSD license.
- * see: http://github.com/jrburke/almond for details
- */
-/*jslint strict: false, plusplus: false */
-/*global setTimeout: false */
-
-// BEGIN MR PATCH: Expose top-level vars in this function's scope
-//var requirejs, require, define;
-// END MR PATCH
-(function (undef) {
-
-    var defined = {},
-        waiting = {},
-        aps = [].slice,
-        main, req;
-
-    if (typeof define === "function") {
-        //If a define is already in play via another AMD loader,
-        //do not overwrite.
-        return;
-    }
-
-    /**
-     * Given a relative module name, like ./something, normalize it to
-     * a real name that can be mapped to a path.
-     * @param {String} name the relative name
-     * @param {String} baseName a real name that the name arg is relative
-     * to.
-     * @returns {String} normalized name
-     */
-    function normalize(name, baseName) {
-        //Adjust any relative paths.
-        if (name && name.charAt(0) === ".") {
-            //If have a base name, try to normalize against it,
-            //otherwise, assume it is a top-level require that will
-            //be relative to baseUrl in the end.
-            if (baseName) {
-                //Convert baseName to array, and lop off the last part,
-                //so that . matches that "directory" and not name of the baseName's
-                //module. For instance, baseName of "one/two/three", maps to
-                //"one/two/three.js", but we want the directory, "one/two" for
-                //this normalization.
-                baseName = baseName.split("/");
-                baseName = baseName.slice(0, baseName.length - 1);
-
-                name = baseName.concat(name.split("/"));
-
-                //start trimDots
-                var i, part;
-                for (i = 0; (part = name[i]); i++) {
-                    if (part === ".") {
-                        name.splice(i, 1);
-                        i -= 1;
-                    } else if (part === "..") {
-                        if (i === 1 && (name[2] === '..' || name[0] === '..')) {
-                            //End of the line. Keep at least one non-dot
-                            //path segment at the front so it can be mapped
-                            //correctly to disk. Otherwise, there is likely
-                            //no path mapping for a path starting with '..'.
-                            //This can still fail, but catches the most reasonable
-                            //uses of ..
-                            break;
-                        } else if (i > 0) {
-                            name.splice(i - 1, 2);
-                            i -= 2;
-                        }
-                    }
-                }
-                //end trimDots
-
-                name = name.join("/");
-            }
-        }
-        return name;
-    }
-
-    function makeRequire(relName, forceSync) {
-        return function () {
-            //A version of a require function that passes a moduleName
-            //value for items that may need to
-            //look up paths relative to the moduleName
-            return req.apply(undef, aps.call(arguments, 0).concat([relName, forceSync]));
-        };
-    }
-
-    function makeNormalize(relName) {
-        return function (name) {
-            return normalize(name, relName);
-        };
-    }
-
-    function makeLoad(depName) {
-        return function (value) {
-            defined[depName] = value;
-        };
-    }
-
-    function callDep(name) {
-        if (waiting.hasOwnProperty(name)) {
-            var args = waiting[name];
-            delete waiting[name];
-            main.apply(undef, args);
-        }
-        return defined[name];
-    }
-
-    /**
-     * Makes a name map, normalizing the name, and using a plugin
-     * for normalization if necessary. Grabs a ref to plugin
-     * too, as an optimization.
-     */
-    function makeMap(name, relName) {
-        var prefix, plugin,
-            index = name.indexOf('!');
-
-        if (index !== -1) {
-            prefix = normalize(name.slice(0, index), relName);
-            name = name.slice(index + 1);
-            plugin = callDep(prefix);
-
-            //Normalize according
-            if (plugin && plugin.normalize) {
-                name = plugin.normalize(name, makeNormalize(relName));
-            } else {
-                name = normalize(name, relName);
-            }
-        } else {
-            name = normalize(name, relName);
-        }
-
-        //Using ridiculous property names for space reasons
-        return {
-            f: prefix ? prefix + '!' + name : name, //fullName
-            n: name,
-            p: plugin
-        };
-    }
-
-    main = function (name, deps, callback, relName) {
-        var args = [],
-            usingExports,
-            cjsModule, depName, i, ret, map;
-
-        //Use name if no relName
-        if (!relName) {
-            relName = name;
-        }
-
-        //Call the callback to define the module, if necessary.
-        if (typeof callback === 'function') {
-
-            //Default to require, exports, module if no deps if
-            //the factory arg has any arguments specified.
-            if (!deps.length && callback.length) {
-                deps = ['require', 'exports', 'module'];
-            }
-
-            //Pull out the defined dependencies and pass the ordered
-            //values to the callback.
-            for (i = 0; i < deps.length; i++) {
-                map = makeMap(deps[i], relName);
-                depName = map.f;
-
-                //Fast path CommonJS standard dependencies.
-                if (depName === "require") {
-                    args[i] = makeRequire(name);
-                } else if (depName === "exports") {
-                    //CommonJS module spec 1.1
-                    args[i] = defined[name] = {};
-                    usingExports = true;
-                } else if (depName === "module") {
-                    //CommonJS module spec 1.1
-                    cjsModule = args[i] = {
-                        id: name,
-                        uri: '',
-                        exports: defined[name]
-                    };
-                } else if (defined.hasOwnProperty(depName) || waiting.hasOwnProperty(depName)) {
-                    args[i] = callDep(depName);
-                } else if (map.p) {
-                    map.p.load(map.n, makeRequire(relName, true), makeLoad(depName), {});
-                    args[i] = defined[depName];
-                } else {
-                    throw name + ' missing ' + depName;
-                }
-            }
-
-            ret = callback.apply(defined[name], args);
-
-            if (name) {
-                //If setting exports via "module" is in play,
-                //favor that over return value and exports. After that,
-                //favor a non-undefined return value over exports use.
-                if (cjsModule && cjsModule.exports !== undef) {
-                    defined[name] = cjsModule.exports;
-                } else if (!usingExports) {
-                    //Use the return value from the function.
-                    defined[name] = ret;
-                }
-            }
-        } else if (name) {
-            //May just be an object definition for the module. Only
-            //worry about defining if have a module name.
-            defined[name] = callback;
-        }
-    };
-
-    requirejs = req = function (deps, callback, relName, forceSync) {
-        if (typeof deps === "string") {
-
-            //Just return the module wanted. In this scenario, the
-            //deps arg is the module name, and second arg (if passed)
-            //is just the relName.
-            //Normalize module name, if it contains . or ..
-            return callDep(makeMap(deps, callback).f);
-        } else if (!deps.splice) {
-            //deps is a config object, not an array.
-            //Drop the config stuff on the ground.
-            if (callback.splice) {
-                //callback is an array, which means it is a dependency list.
-                //Adjust args if there are dependencies
-                deps = callback;
-                callback = arguments[2];
-            } else {
-                deps = [];
-            }
-        }
-
-        //Simulate async callback;
-        if (forceSync) {
-            main(undef, deps, callback, relName);
-        } else {
-            setTimeout(function () {
-                main(undef, deps, callback, relName);
-            }, 15);
-        }
-
-        return req;
-    };
-
-    /**
-     * Just drops the config on the floor, but returns req in case
-     * the config return value is used.
-     */
-    req.config = function () {
-        return req;
-    };
-
-    /**
-     * Export require as a global, but only if it does not already exist.
-     */
-    if (!require) {
-        require = req;
-    }
-
-    define = function (name, deps, callback) {
-
-        //This module may not have dependencies
-        if (!deps.splice) {
-            //deps is not an array, so probably means
-            //an object literal or factory function for
-            //the value. Adjust args.
-            callback = deps;
-            deps = [];
-        }
-
-        if (define.unordered) {
-            waiting[name] = [name, deps, callback];
-        } else {
-            main(name, deps, callback);
-        }
-    };
-
-    define.amd = {
-        jQuery: true
-    };
-}());
-
-// BEGIN MR PATCH: This breaks the optimizer
-//define("almond.js", function(){});
-// END MR PATCH
-
 define('globals',{
   host: 'tweetriver.com'
 , timeout: 10e3
 , protocol: document.location.protocol === 'https:' ? 'https' : 'http'
 , min_poll_interval: 5e3
+, jsonp_param: 'jsonp'
 });
 
 define('helpers',['globals'], function(globals) {
@@ -319,13 +47,86 @@ define('helpers',['globals'], function(globals) {
   };
 
   exports.api_url = function(path, host) {
-    host = host || globals.host;
-    return globals.protocol+'://'+host+path;
+    // A circular dependency has emerged between massrel and helpers.
+    // As much as it pains me to just use massrel off of window, this circular dependency isn't one that could
+    // be easily resolved w/ require.
+    var host = host || massrel.host,
+        port = massrel.port,
+        baseUrl = massrel.protocol + '://' + host + (port ? ':' + port : '');
+
+    return baseUrl + path;
   };
 
-  var json_callbacks_counter = 0;
-  globals._json_callbacks = {};
-  exports.jsonp_factory = function(url, params, jsonp_prefix, obj, callback, error) {
+  exports.req = {};
+  exports.req.supportsCors = (('XMLHttpRequest' in window && 'withCredentials' in new XMLHttpRequest()) || 'XDomainRequest' in window);
+  exports.req.supportsJSON = 'JSON' in window;
+  exports.req.xdr = function(url, params, jsonp_prefix, obj, callback, error) {
+    var req;
+
+    var success = function(responseText) {
+      var data;
+      var problems = false;
+      try {
+        data = JSON.parse(responseText);
+      }
+      catch(e) {
+        problems = true;
+        fail(new Error('JSON parse error'));
+      }
+
+      if(!problems) {
+        if(typeof callback === 'function') {
+          callback(data);
+        }
+        else if(exports.is_array(callback) && callback.length > 0) {
+          exports.step_through(data, callback, obj);
+        }
+      }
+    };
+
+    var fail = function(text) {
+      if(typeof error === 'function') {
+        error(text);
+      }
+    };
+
+    // check XDomainRequest presence first
+    // because newer IE's support XHR object
+    // but without CORS
+    if(window.XDomainRequest) {
+      req = new XDomainRequest();
+      req.open('GET', url+'?'+exports.to_qs(params));
+      req.onerror = fail;
+      req.onprogress = function(){ };
+      req.ontimeout = function(){ };
+      req.onload = function() {
+        success(req.responseText);
+      };
+      req.send(null);
+    }
+    else if(window.XMLHttpRequest) {
+      req = new XMLHttpRequest();
+
+      req.open('GET', url+'?'+exports.to_qs(params), true);
+      req.onerror = fail;
+      req.onreadystatechange = function() {
+        if (req.readyState === 4) {
+          if(req.status >= 200 && req.status < 400) {
+            success(req.responseText);
+          }
+          else {
+            fail(new Error('Response returned with non-OK status'));
+          }
+        }
+      };
+      req.send(null);
+    }
+    else {
+      fail(new Error('CORS not supported'));
+    }
+  };
+
+  exports.req.jsonp = function(url, params, jsonp_prefix, obj, callback, error) {
     var callback_id = jsonp_prefix+(++json_callbacks_counter);
     var fulfilled = false;
     var timeout;
@@ -335,7 +136,7 @@ define('helpers',['globals'], function(globals) {
         callback(data);
       }
       else if(exports.is_array(callback) && callback.length > 0) {
-        helpers.step_through(data, callback, obj);
+        exports.step_through(data, callback, obj);
       }
       
       delete globals._json_callbacks[callback_id];
@@ -343,7 +144,7 @@ define('helpers',['globals'], function(globals) {
       fulfilled = true;
       clearTimeout(timeout);
     };
-    params.push(['jsonp', 'massrel._json_callbacks.'+callback_id]);
+    params.push([globals.jsonp_param, 'massrel._json_callbacks.'+callback_id]);
 
     var ld = exports.load(url + '?' + exports.to_qs(params));
 
@@ -359,6 +160,20 @@ define('helpers',['globals'], function(globals) {
         ld.stop();
       }
     }, globals.timeout);
+  };
+
+  // alias for backwards compatability
+  exports.jsonp_factory = exports.req.jsonp;
+
+  var json_callbacks_counter = 0;
+  globals._json_callbacks = {};
+  exports.request_factory = function(url, params, jsonp_prefix, obj, callback, error) {
+     if(exports.req.supportsCors && exports.req.supportsJSON) {
+       exports.req.xdr(url, params, jsonp_prefix, obj, callback, error);
+     }
+     else {
+       exports.req.jsonp(url, params, jsonp_prefix, obj, callback, error);
+     }
   };
 
   exports.is_array = Array.isArray || function(obj) {
@@ -408,10 +223,14 @@ define('helpers',['globals'], function(globals) {
       for(var i = 0, len = params.length; i < len; i++) {
         val = params[i][1];
         if(exports.is_array(val)) {
+          // copy encoded vals from array into a
+          // new array to make sure not to corruept
+          // reference array
+          var encVals = [];
           for(var j = 0, len2 = val.length; j < len2; j++) {
-            val[j] = _enc(val[j] || '');
+            encVals[j] = _enc(val[j] || '');
           }
-          val = val.join(',');
+          val = encVals.join(',');
         }
         else if(val !== undefined && val !== null) {
           val = _enc(val);
@@ -430,16 +249,25 @@ define('helpers',['globals'], function(globals) {
 
   var rx_twitter_date = /\+\d{4} \d{4}$/;
   var rx_fb_date = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\+\d{4})$/; // iso8601
+  var rx_normal_date = /^(\d{4})-(\d\d)-(\d\d)T(\d\d)\:(\d\d)\:(\d\d)\.(\d{3})Z$/; // iso8601, no offset
   exports.fix_date = exports.fix_twitter_date = function(date) {
-    if(rx_twitter_date.test(date)) {
+    // ensure we're dealing with a string, not a Date object
+    date = date.toString();
+
+    if (rx_twitter_date.test(date)) {
       date = date.split(' ');
       var year = date.pop();
       date.splice(3, 0, year);
       date = date.join(' ');
     }
-    else if(rx_fb_date.test(date)) {
+    else if (rx_fb_date.test(date)) {
       date = date.replace(rx_fb_date, '$1/$2/$3 $4:$5:$6 $7');
     }
+    else if (rx_normal_date.test(date)) {
+      // IE7/8 can't handle the ISO JavaScript date format, so we convert
+      date = date.replace(rx_normal_date, '$1/$2/$3 $4:$5:$6 +0000');
+    }
+
     return date;
   };
 
@@ -563,7 +391,7 @@ define('account',['helpers', 'meta_poller'], function(helpers, MetaPoller) {
     }
 
     var params = this.buildMetaParams(opts);
-    helpers.jsonp_factory(this.meta_url(), params, 'meta_', this, fn, error);
+    helpers.request_factory(this.meta_url(), params, 'meta_', this, fn, error);
 
     return this;
   };
@@ -693,7 +521,7 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
     this._enumerators = [];
     this._bound_enum = false;
     this._t = null;
-    
+
     opts = opts || {};
     this.limit = opts.limit || null;
     this.since_id = opts.since_id || null;
@@ -703,6 +531,8 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
     this.keywords = opts.keywords || null;
     this.frequency = (opts.frequency || 30) * 1000;
     this.stay_realtime = 'stay_realtime' in opts ? !!opts.stay_realtime : true;
+    this.network = opts.network || null;
+    this.timeline_search = !!opts.timeline_search;
     this.enabled = false;
     this.alive = true;
     this.alive_instance = 0;
@@ -732,7 +562,7 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
     }
     this.enabled = true;
     var instance_id = this.alive_instance = this.alive_instance + 1;
-    
+
     var self = this;
     function poll() {
       self.alive = false;
@@ -750,19 +580,19 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
       self.stream.load(self.params(load_opts), function(statuses) {
         self.alive = true;
         self.consecutive_errors = 0;
-        
+
         if(statuses && statuses.length > 0) {
           self.since_id = statuses[0].entity_id;
 
           if(!self.start_id) { // grab last item ID if it has not been set
             self.start_id = statuses[statuses.length - 1].entity_id;
           }
-          
+
           // invoke all batch handlers on this poller
           for(var i = 0, len = self._callbacks.length; i < len; i++) {
             self._callbacks[i].call(self, statuses); // we might need to pass in a copy of statuses array
           }
-          
+
           // invoke all enumerators on this poller
           helpers.step_through(statuses, self._enumerators, self);
         }
@@ -773,9 +603,9 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
       });
 
     }
-  
+
     poll();
-    
+
     return this;
   };
   Poller.prototype.stop = function() {
@@ -823,7 +653,9 @@ define('poller',['helpers', 'poller_queue'], function(helpers, PollerQueue) {
       limit: this.limit,
       replies: this.replies,
       geo_hint: this.geo_hint,
-      keywords: this.keywords
+      keywords: this.keywords,
+      network: this.network,
+      timeline_search: this.tiemline_search
     }, opts || {});
   };
 
@@ -835,10 +667,10 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
 
   function Stream() {
     var args = arguments.length === 1 ? arguments[0].split('/') : arguments;
-    
+
     this.account = args[0];
     this.stream_name = args[1];
-    
+
     this._enumerators = [];
   }
   Stream.prototype.stream_url = function() {
@@ -851,9 +683,9 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
     opts = helpers.extend(opts || {}, {
       // put defaults
     });
-    
+
     var params = this.buildParams(opts);
-    helpers.jsonp_factory(this.stream_url(), params, '_', this, fn || this._enumerators, error);
+    helpers.request_factory(this.stream_url(), params, '_', this, fn || this._enumerators, error);
 
     return this;
   };
@@ -881,6 +713,12 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
     if(opts.keywords) {
       params.push(['keywords', opts.keywords]);
     }
+    if(opts.network) {
+      params.push(['network', opts.network]);
+    }
+    if(opts.timeline_search) {
+      params.push(['timeline_search', '1']);
+    }
     return params;
   };
   Stream.prototype.each = function(fn) {
@@ -905,10 +743,10 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
     else {
       throw new Error('incorrect arguments');
     }
-    
+
     var params = this.buildMetaParams(opts);
-    helpers.jsonp_factory(this.meta_url(), params, 'meta_', this, fn, error);
-    
+    helpers.request_factory(this.meta_url(), params, 'meta_', this, fn, error);
+
     return this;
   };
   Stream.prototype.buildMetaParams = function(opts) {
@@ -926,11 +764,23 @@ define('stream',['helpers', 'poller', 'meta_poller'], function(helpers, Poller, 
     if(opts.num_days) {
       params.push(['num_days', opts.num_days]);
     }
+    if(opts.num_trends) {
+      params.push(['num_trends', opts.num_trends]);
+    }
     if(opts.top_periods) {
       params.push(['top_periods', opts.top_periods]);
     }
+    if(opts.top_periods_relative) {
+      params.push(['top_periods_relative', opts.top_periods_relative]);
+    }
+    if(opts.top_count) {
+      params.push(['top_count', opts.top_count]);
+    }
     if(opts.finish) {
       params.push(['finish', opts.finish]);
+    }
+    if(opts.networks) {
+      params.push(['networks', '1']);
     }
     return params;
   };
@@ -949,6 +799,8 @@ define('context',['helpers'], function(helpers) {
     this.source = {
       facebook: false,
       twitter: false,
+      google: false,
+      instagram: false,
       message: false
     };
     this.known = false;
@@ -976,6 +828,12 @@ define('context',['helpers'], function(helpers) {
       context.source.facebook = true;
       context.known = (typeof(status.message) === 'string');
     }
+    else if(status.network === 'google_plus') {
+      context.source.google = context.known = true;
+    }
+    else if(status.network === 'instagram') {
+      context.source.instagram = context.known = true;
+    }
     else if(status.network === 'massrelevance') {
       // source: internal message
       context.source.message = context.known = true;
@@ -993,25 +851,147 @@ define('context',['helpers'], function(helpers) {
   return Context;
 });
 
+define('compare_poller',['helpers'], function(helpers) {
+  function ComparePoller(object, opts) {
+    var self = this,
+        fetch = function () {
+          if (enabled) {
+            object.load(self.opts, function(data) {
+              if (enabled) {
+                helpers.step_through(data, self._listeners, self);
+                
+                if (enabled) {
+                  again();
+                }
+              }
+            }, function() {
+              again();
+            });
+          }
+        },
+        again = function () {
+          tmo = setTimeout(fetch, helpers.poll_interval(self.opts.frequency));
+        },
+        enabled = false,
+        tmo;
+        
+    self._listeners = [];
+    
+    self.opts = opts || {};
+    self.opts.frequency = (self.opts.frequency || 30) * 1000;
+    
+    self.start = function () {
+      if (!enabled) {
+        enabled = true;
+        fetch();
+      }
+      
+      return this;
+    };
+    
+    self.stop = function () {
+      clearTimeout(tmo);
+      enabled = false;
+      
+      return this;
+    };
+  }
+  
+  ComparePoller.prototype.data = function(fn) {
+    this._listeners.push(fn);
+    return this;
+  };
+  
+  // alias each
+  ComparePoller.prototype.each = ComparePoller.prototype.data;
+
+  return ComparePoller;
+});
+
+define('compare',['helpers', 'compare_poller'], function(helpers, ComparePoller) {
+  function Compare(streams) {
+    if(helpers.is_array(streams)) {
+      // keep a copy of the array
+      this.streams = streams.slice(0);
+    }
+    else if(typeof(streams) === 'string') {
+      this.streams = [streams];
+    }
+    else {
+      this.streams = [];
+    }
+  }
+  
+  Compare.prototype.compare_url = function() {
+    return helpers.api_url('/compare.json');
+  };
+  
+  Compare.prototype.buildParams = function(opts) {
+    var params = [];
+    
+    opts = opts || {};
+
+    if(opts.streams) {
+      params.push(['streams', opts.streams]);
+    }
+    if(opts.target || opts.target >=0) {
+      params.push('target', opts.target.toString());
+    }
+    
+    return params;
+  };
+  
+  Compare.prototype.load = function(opts, fn, error) {
+    if(typeof(opts) === 'function') {
+      error = fn;
+      fn = opts;
+      opts = null;
+    }
+    var params = this.buildParams(helpers.extend({
+      streams: this.streams
+    }, opts || {}));
+
+    helpers.request_factory(this.compare_url(), params, 'meta_', this, fn, error);
+    return this;
+  };
+  
+  Compare.prototype.poller = function(opts) {
+    return new ComparePoller(this, opts);
+  };
+  
+  return Compare;
+});
+
 define('intents',['helpers'], function(helpers) {
 
   var intents = {
     base_url: 'https://twitter.com/intent/',
     params: {
-      'text'       : '(string): default text, for tweet/reply',
-      'url'        : '(string): prefill url, for tweet/reply',
-      'hashtags'   : '(string): hashtag (or list with ,) without #, for tweet/reply',
-      'related'    : '(string): screen name (or list with ,) without @, available for all',
-      'in_reply_to': '(number): tweet id, only for reply',
-      'via'        : '(string): screen name without @, tweet/reply',
-      'tweet_id'   : '(number): tweet id, for retweet and favorite',
-      'screen_name': '(string): only for user/profile',
-      'user_id'    : '(number): only for user/profile'
-    }
+      'text'            : '(string): default text, for tweet/reply',
+      'url'             : '(string): prefill url, for tweet/reply',
+      'hashtags'        : '(string): hashtag (or list with ,) without #, for tweet/reply',
+      'related'         : '(string): screen name (or list with ,) without @, available for all',
+      'in_reply_to'     : '(number): tweet id, only for reply',
+      'via'             : '(string): screen name without @, tweet/reply',
+      'tweet_id'        : '(number): tweet id, for retweet and favorite',
+      'screen_name'     : '(string): only for user/profile',
+      'user_id'         : '(number): only for user/profile',
+      'original_referer': '(string): url to display with related ("www.yahoo.com suggests you follow:")'
+    },
+    // set an original referer if the current page is
+    // iframed and there exists a referer
+    original_referer:  window.top !== window.self && document.referrer || null
   };
 
   intents.url = function(type, options) {
     options = options || {};
+
+    // automatically use the referer if user has not set one
+    // and we can safetly determine an original referer
+    if(options.original_referer === undefined && intents.original_referer) {
+      options.original_referer = intents.original_referer;
+    }
+
     var params = [];
     for(var k in options) {
       params.push([k, options[k]]);
@@ -1058,9 +1038,7 @@ define('intents',['helpers'], function(helpers) {
   return intents;
 });
 
-// BEGIN MR PATCH: Add vendor dir prefix
-define('vendor/massrel', [
-// END MR PATCH
+define('massrel', [
          'globals'
        , 'helpers'
        , 'stream'
@@ -1069,6 +1047,8 @@ define('vendor/massrel', [
        , 'meta_poller'
        , 'poller_queue'
        , 'context'
+       , 'compare'
+       , 'compare_poller'
        , 'intents'
        ], function(
          globals
@@ -1079,6 +1059,8 @@ define('vendor/massrel', [
        , MetaPoller
        , PollerQueue
        , Context
+       , Compare
+       , ComparePoller
        , intents
        ) {
 
@@ -1096,6 +1078,8 @@ define('vendor/massrel', [
   massrel.MetaPoller = MetaPoller;
   massrel.PollerQueue = PollerQueue;
   massrel.Context = Context;
+  massrel.Compare = Compare;
+  massrel.ComparePoller = ComparePoller;
   massrel.helpers = helpers;
   massrel.intents = intents;
 
@@ -1104,13 +1088,12 @@ define('vendor/massrel', [
   massrel.require = require;
   massrel.requirejs = requirejs;
 
-// BEGIN MR PATCH: Don't call define within a define
-  // define API for AMD
-  //if(typeof(window.define) === 'function' && typeof(window.define.amd) !== 'undefined') {
-    //window.define(massrel);
-  //}
   return massrel;
-// END MR PATCH
+});
 
+// Go ahead and export the 'massrel' module to 'vendor/massrel', as well, since 
+// most places expect it to live there.
+define('vendor/massrel', ['massrel'], function(massrel) {
+  return massrel;
 });
 }());
