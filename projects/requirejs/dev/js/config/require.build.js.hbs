@@ -11,6 +11,7 @@
     'hbs': 'vendor/hbs',
     'css': '../css',
     'templates': '../templates',
+    'text': 'vendor/text'
     {{! This file is generated at build time }}
     {{{include "js/config/require.build.paths.js"}}}
   },
@@ -42,7 +43,8 @@
 
   modules: [
     {
-      name: 'main'
+      name: 'main',
+      include: ['vendor/check-version']
     }
   ]
 })
