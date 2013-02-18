@@ -1,5 +1,5 @@
   /*!
-   * massrel/stream-js 0.13.1
+   * massrel/stream-js 0.13.2
    *
    * Copyright 2012 Mass Relevance
    *
@@ -1005,6 +1005,7 @@ massreljs.define('poller',['helpers', 'generic_poller', 'poller_queue'], functio
     this.newest_timestamp = opts.newest_timestamp || null;
     this.stay_realtime = 'stay_realtime' in opts ? !!opts.stay_realtime : true;
     this.hail_mary_mode = !!opts.hail_mary_mode;
+    this.first = true;
   }
 
   helpers.extend(Poller.prototype, GenericPoller.prototype);
@@ -1032,6 +1033,11 @@ massreljs.define('poller',['helpers', 'generic_poller', 'poller_queue'], functio
     load_opts[newer_id] = self.since_id;
 
     // create load options
+    opts = helpers.extend({}, opts);
+    if(this.first) {
+      opts = helpers.extend(opts.initial || {}, opts);
+      delete opts.initial;
+    }
     load_opts = helpers.extend(load_opts, opts);
     
     // remove since_id if the poller
@@ -1053,6 +1059,7 @@ massreljs.define('poller',['helpers', 'generic_poller', 'poller_queue'], functio
           }
         }
         cycle.callback(statuses);
+        self.first = false;
       }
     }, cycle.errback);
     return this;
