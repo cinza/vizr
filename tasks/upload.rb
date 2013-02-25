@@ -6,19 +6,41 @@ task :upload, :target, :options do |t, args|
   target = args[:target]
   options = args[:options]
 
-  # Prevent an upload from happening until the target repo is in a clean state
+  # prevent an upload from happening until the target repo is in a clean state
   dirty_git = !(system "git diff-index --quiet HEAD #{target}")
   if dirty_git
     abort("Aborted. Uncommitted changes in target repo.")
   end
 
+  # make sure our required parameters are present
+  api_key = options['api_key']
+  endpoint = (options['upload'] || {})['endpoint']
+  dist_path = File.join(target, options[:filename])
+
+  # make sure we have an API key and upload endpoint, and error if we don't
+  if !api_key
+    abort(%{Aborted. An API key is required when uploading.
+
+To set your API key globally for all vizr projects:
+  - Find your API key by visiting:
+    http://massrelevance.com/admin/users?search={{your_twitter_username}}
+  - Copy the API key from your user's page.
+  - Create a '.vizrrc' file in your home directory (if necessary), then add a
+    line like: 'api_key: "{{key}}"'
+})
+  elsif !endpoint
+    abort(%{Aborted. An upload endpoint is required.
+
+To upload, give a '.vizr' file in the root of the project this content:
+
+upload:
+  endpoint: 'http://massrelevance.com/admin/projects/{{project_id}}'
+})
+  end
+
   # Don't let an upload happen until a non-dev build is completed and a vizr dist is done.
   COMMANDS[:build].call([target]) # Use default options for build
   COMMANDS[:dist].call([target]) # Use default options for dist
-
-  api_key = options['api_key']
-  endpoint = options['upload']['endpoint']
-  dist_path = File.join(target, options[:filename])
 
   params = {
     :api_key => api_key,
