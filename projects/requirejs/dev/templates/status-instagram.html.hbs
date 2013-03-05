@@ -2,7 +2,7 @@
   {{#if config.type_markers}}
   <div class="massrel-status-type-marker"></div>
   {{/if}}
-  <a href="{{status.link}}" class="massrel-avatar">
+  <a href="https://instagram.com/{{status.user.username}}" class="massrel-avatar">
     <img src="{{status.user.profile_picture}}" alt="" />
   </a>
   <div class="massrel-content">
@@ -14,10 +14,15 @@
     </a>
     {{/if}}
     <div class="massrel-author">
-      <a href="{{status.link}}" class="massrel-primary-name">{{status.user.full_name}}</a>
-      <a href="{{status.link}}" class="massrel-secondary-name">@{{status.user.username}}</a>
+      <a href="https://instagram.com/{{status.user.username}}" class="massrel-primary-name">{{status.user.full_name}}</a>
+      <a href="https://instagram.com/{{status.user.username}}" class="massrel-secondary-name">@{{status.user.username}}</a>
     </div>
+
     <div class="massrel-text">{{#if status.caption}}{{{autoLink status.caption.text}}}{{/if}}</div>
+
+    {{#if config.embed_media}}
+    <div class="massrel-media"><a href="{{status.link}}"><img src="{{status.images.standard_resolution.url}}" /></a></div>
+    {{/if}}
 
     <div class="massrel-meta">
       {{#if config.full_details}}
