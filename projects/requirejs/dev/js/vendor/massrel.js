@@ -1,5 +1,5 @@
   /*!
-   * massrel/stream-js 0.13.3
+   * massrel/stream-js 0.13.6
    *
    * Copyright 2012 Mass Relevance
    *
@@ -588,11 +588,13 @@ massreljs.define('helpers',['globals'], function(globals) {
   // times and warn dev if more than "max"
   // requests have happened in the last minute
   exports.req.counts = [];
-  exports.req.counter = function() {
+  exports.req.total_counts = 0;
+  exports.req.counter = function(throw_error) {
     var now = +(new Date());
     var max = globals.max_reqs_per_min;
     var counts = exports.req.counts;
     var one_minute = 60e3;
+    exports.req.total_counts = exports.req.total_counts + 1;
 
     // this catches a case if "max" value
     // has changed since last counter call
@@ -603,8 +605,12 @@ massreljs.define('helpers',['globals'], function(globals) {
     if(counts.length === max) {
       var diff = now - counts[0];
       if(diff < one_minute) {
-        if(window.console && console.warn) {
-          console.warn('Warn: requested more than '+max+' times in the last minute');
+        var text = 'Warn: requested more than '+max+' times in the last minute ('+exports.req.total_counts+' reqs total)';
+        if(throw_error) {
+          throw new Error(text);
+        }
+        else if(window.console && console.warn) {
+          console.warn(text);
         }
       }
     }
@@ -886,6 +892,7 @@ massreljs.define('generic_poller',['helpers', 'generic_poller_cycle'], function(
 
     this._listeners = [];
     this._filters = [];
+    this.object = object;
     this.opts = opts || {};
     this.frequency = (this.opts.frequency || 30);
     this.alive_count = 0;
@@ -1076,7 +1083,7 @@ massreljs.define('poller',['helpers', 'generic_poller', 'poller_queue'], functio
       delete opts.initial;
     }
     load_opts = helpers.extend(load_opts, opts);
-    
+
     // remove since_id if the poller
     // is in a mode that prevents cursing
     // the via the API
@@ -1118,7 +1125,7 @@ massreljs.define('poller',['helpers', 'generic_poller', 'poller_queue'], functio
   };
 
   // creates a new queue with the poller
-  Poller.prototype.queue = function() {
+  Poller.prototype.queue = function(fn) {
     var queue = new PollerQueue(this);
     queue.next(fn);
     return this;
@@ -1132,7 +1139,7 @@ massreljs.define('poller',['helpers', 'generic_poller', 'poller_queue'], functio
 
     var self = this,
         fetch = function() {
-          self.object.fetch(helpers.extend({
+          self.object.load(helpers.extend({
             start_id: self.start_id,
 
             // prevent since_id from being included in query
@@ -1143,7 +1150,6 @@ massreljs.define('poller',['helpers', 'generic_poller', 'poller_queue'], functio
               if(!self.since_id) {
                 self.since_id = statuses[0].entity_id;
               }
-
             }
             fn.call(self, statuses);
           }, function() {
@@ -1723,15 +1729,14 @@ massreljs.define('massrel', [
     massrel.host = params['massrel[host]'];
   }
 
-  // If there's already an AMD loader defined, export 'massrel' and 'vendor/massrel' to be consumed in that context.
-  if(typeof window.define === 'function') {
-    window.define('massrel', massrel);
-    window.define('vendor/massrel', massrel);
-  }
-
   return massrel;
 });
 // call massrel module
-massreljs.require('massrel');
+var massrel = massreljs.require('massrel');
+
+// If there's an external AMD loader defined, define this library in that context.
+if (typeof define === 'function' && define.amd) {
+  define(massrel);
+}
 
 })(window);
